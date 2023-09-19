@@ -22,7 +22,7 @@ export enum Theme {
 export const DEFAULT_CONFIG = {
   lastUpdate: Date.now(), // timestamp, to merge state
 
-  submitKey: SubmitKey.CtrlEnter as SubmitKey,
+  submitKey: SubmitKey.Enter as SubmitKey,
   avatar: "1f603",
   fontSize: 14,
   theme: Theme.Auto as Theme,
@@ -46,10 +46,10 @@ export const DEFAULT_CONFIG = {
     max_tokens: 2000,
     presence_penalty: 0,
     frequency_penalty: 0,
-    sendMemory: true,
-    historyMessageCount: 4,
-    compressMessageLengthThreshold: 1000,
-    enableInjectSystemPrompts: true,
+    sendMemory: false, // 历史摘要
+    historyMessageCount: 0, // 附带历史消息数
+    compressMessageLengthThreshold: 1000, // 历史消息长度压缩阈值
+    enableInjectSystemPrompts: false, // 注入系统级提示信息
     template: DEFAULT_INPUT_TEMPLATE,
   },
 };

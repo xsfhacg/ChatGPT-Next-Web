@@ -20,6 +20,57 @@ import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 
+// 创建浏览器指纹
+let globalFingerprint: string | null = null;
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
+export async function getBrowserFingerprint(): Promise<string> {
+  if (globalFingerprint) {
+    return globalFingerprint;
+  }
+  const fp = await FingerprintJS.load();
+  const result = await fp.get();
+  globalFingerprint = result.visitorId;
+  console.log("【Fingerprint as const】: ", globalFingerprint);
+  return globalFingerprint;
+}
+
+// 时间戳格式化
+export function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
+
+  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return formattedDate;
+}
+// 保存数据
+export async function saveChatMessage(data: any): Promise<void> {
+  // const url = 'http://localhost:10030/aicenter/save_chat_message';
+  const url = "/save_api/aicenter/save_chat_message";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (response.ok) {
+      console.log("[Save Successful]");
+    } else {
+      console.log("[Save Failed]: ", response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error("[Save Error]: ", error);
+  }
+}
+
 export type ChatMessage = RequestMessage & {
   date: string;
   streaming?: boolean;
@@ -298,6 +349,20 @@ export const useChatStore = createPersistStore(
         const userContent = fillTemplateWith(content, modelConfig);
         console.log("[User Input] after template: ", userContent);
 
+        // 保存问题JSON
+        const user_id = await getBrowserFingerprint();
+        let requestObj = {
+          temp_user_id: user_id,
+          sender_temp_user_id: user_id,
+          session_id: session.id,
+          session_topic: session.topic,
+          ai_model: session.mask.modelConfig.model,
+          message: userContent.trimStart(),
+          createtime: formatTimestamp(Date.now()),
+        };
+        console.log(requestObj);
+        saveChatMessage(requestObj);
+
         const userMessage: ChatMessage = createMessage({
           role: "user",
           content: userContent,
@@ -495,7 +560,8 @@ export const useChatStore = createPersistStore(
         });
       },
 
-      summarizeSession() {
+      // 总结会话
+      async summarizeSession() {
         const config = useAppConfig.getState();
         const session = get().currentSession();
 
@@ -546,6 +612,48 @@ export const useChatStore = createPersistStore(
           toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
             Math.max(0, n - modelConfig.historyMessageCount),
           );
+        }
+
+        // console.log(
+        //   "【session】:",
+        //   session
+        // );
+
+        // console.log(
+        //   "【当前对话】:",
+        //   session.topic,
+        //   toBeSummarizedMsgs.slice(-2)
+        // );
+
+        // 创建单次会话对象返回给接口保存
+        const user_id = await getBrowserFingerprint();
+        let sessionObj = {
+          user_id: user_id,
+          topic: session.topic,
+          topic_id: session.id,
+          request: toBeSummarizedMsgs.slice(-2)[0],
+          response: toBeSummarizedMsgs.slice(-2)[1],
+          mask: session.mask,
+          memoryPrompt: session.memoryPrompt,
+        };
+        // console.log(sessionObj);
+
+        // 保存回答JSON
+        let responseObj = {
+          temp_user_id: user_id,
+          sender_temp_user_id: "ai",
+          session_id: session.id,
+          session_topic: session.topic,
+          ai_model: toBeSummarizedMsgs.slice(-1)[0].model,
+          message: toBeSummarizedMsgs.slice(-1)[0].content,
+          createtime: formatTimestamp(Date.now()),
+        };
+        console.log(responseObj);
+        // 判断一下，最后一条是ai回答才保存
+        if (toBeSummarizedMsgs.slice(-1)[0].role === "assistant") {
+          saveChatMessage(responseObj);
+        } else {
+          console.log("[当前非回答]: ", toBeSummarizedMsgs.slice(-1)[0]);
         }
 
         // add memory prompt

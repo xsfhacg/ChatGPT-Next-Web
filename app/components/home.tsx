@@ -30,6 +30,11 @@ import { getClientConfig } from "../config/client";
 import { api } from "../client/api";
 import { useAccessStore } from "../store";
 
+// 顶部导航栏
+import TopNavigation from "./top-navigation";
+// 登录按钮
+import LoginButton from "./login";
+
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={styles["loading-content"] + " no-dark"}>
@@ -126,6 +131,53 @@ function Screen() {
   const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
 
+  const links = [
+    // { to: '/', label: 'Home' },
+    // { to: '/new-chat', label: 'New Chat' },
+    // { to: '/masks', label: 'Masks' },
+    // { to: '/chat', label: 'Chat' },
+    // { to: '/settings', label: 'Settings' },
+
+    // 添加外部链接
+    { to: "/", label: "ChatGPT" },
+    {
+      to: { pathname: "http://www.orangeui.cn", isExternal: true },
+      label: "OrangeUI",
+    },
+    {
+      to: { pathname: "http://www.orangeui.cn/download", isExternal: true },
+      label: "下载",
+    },
+    {
+      to: { pathname: "http://www.orangeui.cn/cusomer-case", isExternal: true },
+      label: "案例",
+    },
+    {
+      to: { pathname: "http://www.orangeui.cn/components", isExternal: true },
+      label: "文档",
+    },
+    {
+      to: { pathname: "http://www.orangeui.cn/delphiapp", isExternal: true },
+      label: "App开发教程",
+    },
+    {
+      to: {
+        pathname: "https://github.com/DelphiTeacher/OrangeUI",
+        isExternal: true,
+      },
+      label: "GitHub",
+    },
+    {
+      to: { pathname: "http://www.orangeui.cn/wordpress", isExternal: true },
+      label: "Blog",
+    },
+  ];
+  const handleButtonClick = () => {
+    const callbackUrl = encodeURIComponent(window.location.href);
+    const url = `https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api&callback_url=${callbackUrl}`;
+    window.location.href = url;
+  };
+
   useEffect(() => {
     loadAsyncGoogleFont();
   }, []);
@@ -141,6 +193,14 @@ function Screen() {
         } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
       }
     >
+      {/* 添加 TopNavigation 组件 */}
+      {!isAuth && !isMobileScreen && <TopNavigation links={links} />}
+
+      {/* 添加登录按钮 */}
+      {!isAuth && !isMobileScreen && (
+        <LoginButton onClick={handleButtonClick} />
+      )}
+
       {isAuth ? (
         <>
           <AuthPage />

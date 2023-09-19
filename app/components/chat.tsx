@@ -456,6 +456,7 @@ export function ChatActions(props: {
           icon={<BottomIcon />}
         />
       )}
+      {/* 输入框上方的设置按钮 */}
       {props.hitBottom && (
         <ChatAction
           onClick={props.showPromptModal}
@@ -509,6 +510,7 @@ export function ChatActions(props: {
         }}
       />
 
+      {/* 输入框上方的GPT版本切换按钮 */}
       <ChatAction
         onClick={() => setShowModelSelector(true)}
         text={currentModel}

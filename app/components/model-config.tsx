@@ -1,3 +1,4 @@
+// 对话设置遮罩
 import { ModalConfigValidator, ModelConfig, useAppConfig } from "../store";
 
 import Locale from "../locales";
@@ -12,6 +13,7 @@ export function ModelConfigList(props: {
 
   return (
     <>
+      {/* 模型 (model) */}
       <ListItem title={Locale.Settings.Model}>
         <Select
           value={props.modelConfig.model}
@@ -31,6 +33,8 @@ export function ModelConfigList(props: {
           ))}
         </Select>
       </ListItem>
+
+      {/* 随机性 (temperature) */}
       <ListItem
         title={Locale.Settings.Temperature.Title}
         subTitle={Locale.Settings.Temperature.SubTitle}
@@ -50,6 +54,8 @@ export function ModelConfigList(props: {
           }}
         ></InputRange>
       </ListItem>
+
+      {/* 核采样 (top_p) */}
       <ListItem
         title={Locale.Settings.TopP.Title}
         subTitle={Locale.Settings.TopP.SubTitle}
@@ -69,6 +75,8 @@ export function ModelConfigList(props: {
           }}
         ></InputRange>
       </ListItem>
+
+      {/* 单次回复限制 (max_tokens) */}
       <ListItem
         title={Locale.Settings.MaxTokens.Title}
         subTitle={Locale.Settings.MaxTokens.SubTitle}
@@ -88,6 +96,8 @@ export function ModelConfigList(props: {
           }
         ></input>
       </ListItem>
+
+      {/* 话题新鲜度 (presence_penalty) */}
       <ListItem
         title={Locale.Settings.PresencePenalty.Title}
         subTitle={Locale.Settings.PresencePenalty.SubTitle}
@@ -109,6 +119,7 @@ export function ModelConfigList(props: {
         ></InputRange>
       </ListItem>
 
+      {/* 频率惩罚度 (frequency_penalty) */}
       <ListItem
         title={Locale.Settings.FrequencyPenalty.Title}
         subTitle={Locale.Settings.FrequencyPenalty.SubTitle}
@@ -130,7 +141,8 @@ export function ModelConfigList(props: {
         ></InputRange>
       </ListItem>
 
-      <ListItem
+      {/* 注入系统级提示信息 */}
+      {/* <ListItem
         title={Locale.Settings.InjectSystemPrompts.Title}
         subTitle={Locale.Settings.InjectSystemPrompts.SubTitle}
       >
@@ -144,8 +156,9 @@ export function ModelConfigList(props: {
             )
           }
         ></input>
-      </ListItem>
+      </ListItem> */}
 
+      {/* 用户输入预处理 */}
       <ListItem
         title={Locale.Settings.InputTemplate.Title}
         subTitle={Locale.Settings.InputTemplate.SubTitle}
@@ -161,7 +174,8 @@ export function ModelConfigList(props: {
         ></input>
       </ListItem>
 
-      <ListItem
+      {/* 附带历史消息数 */}
+      {/* <ListItem
         title={Locale.Settings.HistoryCount.Title}
         subTitle={Locale.Settings.HistoryCount.SubTitle}
       >
@@ -177,9 +191,10 @@ export function ModelConfigList(props: {
             )
           }
         ></InputRange>
-      </ListItem>
+      </ListItem> */}
 
-      <ListItem
+      {/* 历史消息长度压缩阈值 */}
+      {/* <ListItem
         title={Locale.Settings.CompressThreshold.Title}
         subTitle={Locale.Settings.CompressThreshold.SubTitle}
       >
@@ -196,8 +211,10 @@ export function ModelConfigList(props: {
             )
           }
         ></input>
-      </ListItem>
-      <ListItem title={Locale.Memory.Title} subTitle={Locale.Memory.Send}>
+      </ListItem> */}
+
+      {/* 历史摘要 */}
+      {/* <ListItem title={Locale.Memory.Title} subTitle={Locale.Memory.Send}>
         <input
           type="checkbox"
           checked={props.modelConfig.sendMemory}
@@ -207,7 +224,7 @@ export function ModelConfigList(props: {
             )
           }
         ></input>
-      </ListItem>
+      </ListItem> */}
     </>
   );
 }
