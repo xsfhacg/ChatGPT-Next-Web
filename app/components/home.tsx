@@ -133,6 +133,8 @@ function Screen() {
   const isHome = location.pathname === Path.Home;
   const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
+  const shouldTightBorder =
+    config.tightBorder && !isMobileScreen && !getClientConfig()?.isApp;
 
   const links = [
     // { to: '/', label: 'Home' },
@@ -189,11 +191,9 @@ function Screen() {
     <div
       className={
         styles.container +
-        ` ${
-          config.tightBorder && !isMobileScreen
-            ? styles["tight-container"]
-            : styles.container
-        } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
+        ` ${shouldTightBorder ? styles["tight-container"] : styles.container} ${
+          getLang() === "ar" ? styles["rtl-screen"] : ""
+        }`
       }
     >
       {/* 添加 TopNavigation 组件 */}
