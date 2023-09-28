@@ -648,6 +648,7 @@ export function Settings() {
       </div>
       <div className={styles["settings"]}>
         <List>
+          {/* 用户头像 */}
           <ListItem title={Locale.Settings.Avatar}>
             <Popover
               onClose={() => setShowEmojiPicker(false)}
@@ -670,6 +671,7 @@ export function Settings() {
             </Popover>
           </ListItem>
 
+          {/* 检查更新 */}
           <ListItem
             title={Locale.Settings.Update.Version(currentVersion ?? "unknown")}
             subTitle={
@@ -683,9 +685,10 @@ export function Settings() {
             {checkingUpdate ? (
               <LoadingIcon />
             ) : hasNewVersion ? (
-              <Link href={updateUrl} target="_blank" className="link">
-                {Locale.Settings.Update.GoToUpdate}
-              </Link>
+              // <Link href={updateUrl} target="_blank" className="link">
+              //   {Locale.Settings.Update.GoToUpdate}
+              // </Link>
+              <>更新中~~~</>
             ) : (
               <IconButton
                 icon={<ResetIcon></ResetIcon>}
@@ -695,6 +698,7 @@ export function Settings() {
             )}
           </ListItem>
 
+          {/* 发送键 */}
           <ListItem title={Locale.Settings.SendKey}>
             <Select
               value={config.submitKey}
@@ -713,6 +717,7 @@ export function Settings() {
             </Select>
           </ListItem>
 
+          {/* 切换主题 */}
           <ListItem title={Locale.Settings.Theme}>
             <Select
               value={config.theme}
@@ -730,6 +735,7 @@ export function Settings() {
             </Select>
           </ListItem>
 
+          {/* 切换语言 */}
           <ListItem title={Locale.Settings.Lang.Name}>
             <Select
               value={getLang()}
@@ -745,6 +751,7 @@ export function Settings() {
             </Select>
           </ListItem>
 
+          {/* 字体大小 */}
           <ListItem
             title={Locale.Settings.FontSize.Title}
             subTitle={Locale.Settings.FontSize.SubTitle}
@@ -764,6 +771,7 @@ export function Settings() {
             ></InputRange>
           </ListItem>
 
+          {/* 自动生成标题 */}
           <ListItem
             title={Locale.Settings.AutoGenerateTitle.Title}
             subTitle={Locale.Settings.AutoGenerateTitle.SubTitle}
@@ -780,6 +788,7 @@ export function Settings() {
             ></input>
           </ListItem>
 
+          {/* 预览气泡 */}
           <ListItem
             title={Locale.Settings.SendPreviewBubble.Title}
             subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
@@ -800,6 +809,7 @@ export function Settings() {
         <SyncItems />
 
         <List>
+          {/* 模板启动页 */}
           <ListItem
             title={Locale.Settings.Mask.Splash.Title}
             subTitle={Locale.Settings.Mask.Splash.SubTitle}
@@ -817,6 +827,7 @@ export function Settings() {
             ></input>
           </ListItem>
 
+          {/* 隐藏内置模板 */}
           <ListItem
             title={Locale.Settings.Mask.Builtin.Title}
             subTitle={Locale.Settings.Mask.Builtin.SubTitle}
@@ -835,6 +846,7 @@ export function Settings() {
         </List>
 
         <List>
+          {/* 禁用提示词自动补全 */}
           <ListItem
             title={Locale.Settings.Prompt.Disable.Title}
             subTitle={Locale.Settings.Prompt.Disable.SubTitle}
@@ -851,6 +863,7 @@ export function Settings() {
             ></input>
           </ListItem>
 
+          {/* 自定义提示词列表 */}
           <ListItem
             title={Locale.Settings.Prompt.List}
             subTitle={Locale.Settings.Prompt.ListCount(
@@ -867,6 +880,7 @@ export function Settings() {
         </List>
 
         <List>
+          {/* 访问密码 */}
           {showAccessCode ? (
             <ListItem
               title={Locale.Settings.AccessCode.Title}
@@ -887,6 +901,7 @@ export function Settings() {
 
           {!accessStore.hideUserApiKey ? (
             <>
+              {/* 接口地址 */}
               <ListItem
                 title={Locale.Settings.Endpoint.Title}
                 subTitle={Locale.Settings.Endpoint.SubTitle}
@@ -900,6 +915,8 @@ export function Settings() {
                   }
                 ></input>
               </ListItem>
+
+              {/* API KEY */}
               <ListItem
                 title={Locale.Settings.Token.Title}
                 subTitle={Locale.Settings.Token.SubTitle}
@@ -916,6 +933,7 @@ export function Settings() {
             </>
           ) : null}
 
+          {/* 余额查询 */}
           {!accessStore.hideBalanceQuery ? (
             <ListItem
               title={Locale.Settings.Usage.Title}
@@ -942,6 +960,7 @@ export function Settings() {
             </ListItem>
           ) : null}
 
+          {/* 自定义模型 */}
           <ListItem
             title={Locale.Settings.CustomModel.Title}
             subTitle={Locale.Settings.CustomModel.SubTitle}
