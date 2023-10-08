@@ -35,6 +35,9 @@ import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
 
+// import UserIcon from "../icons/user.svg";
+// import CartIcon from "../icons/cart-outline.svg";
+
 import {
   ChatMessage,
   SubmitKey,
@@ -456,7 +459,7 @@ export function ChatActions(props: {
           icon={<BottomIcon />}
         />
       )}
-      {/* 输入框上方的设置按钮 */}
+      {/* 输入框上方————设置按钮 */}
       {props.hitBottom && (
         <ChatAction
           onClick={props.showPromptModal}
@@ -465,6 +468,7 @@ export function ChatActions(props: {
         />
       )}
 
+      {/* 输入框上方————主题切换 */}
       <ChatAction
         onClick={nextTheme}
         text={Locale.Chat.InputActions.Theme[theme]}
@@ -481,12 +485,14 @@ export function ChatActions(props: {
         }
       />
 
+      {/* 输入框上方————快捷指令 */}
       <ChatAction
         onClick={props.showPromptHints}
         text={Locale.Chat.InputActions.Prompt}
         icon={<PromptIcon />}
       />
 
+      {/* 输入框上方————所有模板 */}
       <ChatAction
         onClick={() => {
           navigate(Path.Masks);
@@ -495,6 +501,7 @@ export function ChatActions(props: {
         icon={<MaskIcon />}
       />
 
+      {/* 输入框上方————清除聊天 */}
       <ChatAction
         text={Locale.Chat.InputActions.Clear}
         icon={<BreakIcon />}
@@ -1062,6 +1069,25 @@ function _Chat() {
           </div>
         </div>
         <div className="window-actions">
+          {/* 对话框右上角————商店 */}
+          {/* <div className="window-action-button">
+            <IconButton
+              icon={<CartIcon />}
+              bordered
+              onClick={() => navigate(Path.Pricing)}
+            />
+          </div> */}
+
+          {/* 对话框右上角————用户中心 */}
+          {/* <div className="window-action-button">
+            <IconButton
+              icon={<UserIcon />}
+              bordered
+              onClick={() => navigate(Path.Profile)}
+            />
+          </div> */}
+
+          {/* 对话框右上角————编辑消息记录 */}
           {!isMobileScreen && (
             <div className="window-action-button">
               <IconButton
@@ -1071,6 +1097,8 @@ function _Chat() {
               />
             </div>
           )}
+
+          {/* 对话框右上角————导出 */}
           <div className="window-action-button">
             <IconButton
               icon={<ExportIcon />}
@@ -1081,6 +1109,8 @@ function _Chat() {
               }}
             />
           </div>
+
+          {/* 对话框右上角————全屏 */}
           {showMaxIcon && (
             <div className="window-action-button">
               <IconButton

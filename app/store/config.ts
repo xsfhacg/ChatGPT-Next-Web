@@ -52,7 +52,7 @@ export const DEFAULT_CONFIG = {
     presence_penalty: 0,
     frequency_penalty: 0,
     sendMemory: false, // 历史摘要
-    historyMessageCount: 0, // 附带历史消息数
+    historyMessageCount: 4, // 附带历史消息数
     compressMessageLengthThreshold: 1000, // 历史消息长度压缩阈值
     enableInjectSystemPrompts: false, // 注入系统级提示信息
     template: DEFAULT_INPUT_TEMPLATE,

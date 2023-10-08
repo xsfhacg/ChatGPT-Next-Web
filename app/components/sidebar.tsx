@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import styles from "./home.module.scss";
 
@@ -29,6 +29,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMobileScreen } from "../utils";
 import dynamic from "next/dynamic";
 import { showConfirm, showToast } from "./ui-lib";
+
+import BasicList from "./sidebarlist";
+import { Divider } from "@mui/material";
+import { isUserLogin } from "../api/restapi/authuser";
 
 const ChatList = dynamic(async () => (await import("./chat-list")).ChatList, {
   loading: () => null,
@@ -137,6 +141,49 @@ export function SideBar(props: { className?: string }) {
 
   useHotKey();
 
+  // 判断登录状态切换按钮
+  const [isLogin, setIsLogin] = useState<boolean>(
+    localStorage.getItem("loggedIn") === "true",
+  );
+  useEffect(() => {
+    const res = isUserLogin();
+    if (res) {
+      setIsLogin(true);
+      console.log("已登录");
+    } else {
+      setIsLogin(false);
+      console.log("未登录");
+    }
+  }, []);
+
+  // 监听登录状态改变侧边栏按钮
+  useEffect(() => {
+    const handleLoginStateChange = (event: StorageEvent) => {
+      console.log("侧边栏开始监听登录状态");
+      if (event.key === "loggedIn") {
+        console.log("检测到 loggedIn 值发生改变：", event.newValue);
+        setIsLogin(event.newValue === "true");
+      }
+    };
+
+    const handleCustomEvent = () => {
+      console.log("自定义侧边栏登录按钮状态监听事件触发");
+      // 在这里执行与 storage 事件相同的操作
+      const loggedInValue = localStorage.getItem("loggedIn");
+      setIsLogin(loggedInValue === "true");
+    };
+
+    console.log("开启侧边栏监听");
+    window.addEventListener("storage", handleLoginStateChange);
+    window.addEventListener("customEvent", handleCustomEvent);
+
+    return () => {
+      console.log("关闭侧边栏监听");
+      window.removeEventListener("storage", handleLoginStateChange);
+      window.removeEventListener("customEvent", handleCustomEvent);
+    };
+  }, []);
+
   return (
     <div
       className={`${styles.sidebar} ${props.className} ${
@@ -185,6 +232,10 @@ export function SideBar(props: { className?: string }) {
         <ChatList narrow={shouldNarrow} />
       </div>
 
+      {/* 侧边栏分割线 */}
+      <Divider variant="middle" sx={{ my: 3, mx: 2 }} />
+      <BasicList isLoggedIn={isLogin} narrow={shouldNarrow} />
+
       <div className={styles["sidebar-tail"]}>
         <div className={styles["sidebar-actions"]}>
           {/* 手机版删除聊天按钮 */}
@@ -198,12 +249,14 @@ export function SideBar(props: { className?: string }) {
               }}
             />
           </div>
+
           {/* 设置按钮 */}
           <div className={styles["sidebar-action"]}>
             <Link to={Path.Settings}>
               <IconButton icon={<SettingsIcon />} shadow />
             </Link>
           </div>
+
           {/* github按钮 */}
           {/* <div className={styles["sidebar-action"]}>
             <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
@@ -211,6 +264,7 @@ export function SideBar(props: { className?: string }) {
             </a>
           </div> */}
         </div>
+
         {/* 新的聊天按钮 */}
         <div>
           <IconButton
@@ -227,6 +281,16 @@ export function SideBar(props: { className?: string }) {
             shadow
           />
         </div>
+
+        {/* 个人中心 */}
+        {/* <div>
+          <IconButton
+            icon={<UserIcon />}
+            text={shouldNarrow ? undefined : Locale.Profile.Title}
+            onClick={() => navigate(Path.Profile)}
+            shadow
+          />
+        </div> */}
       </div>
 
       <div

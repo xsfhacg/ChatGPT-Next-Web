@@ -409,6 +409,76 @@ const cn = {
     Topic: "主题",
     Time: "时间",
   },
+
+  LoginRegister: {
+    Title: "登录&注册",
+    SubTitle: "登录后可跟AI交流",
+    Username: {
+      Title: "用户名或邮箱",
+      SubTitle: "",
+      Placeholder: "请输入用户名或邮箱",
+    },
+    Password: {
+      Title: "密码",
+      SubTitle: "",
+      Placeholder: "请输入密码",
+    },
+    Actions: {
+      Close: "关闭",
+      Login: "登录",
+      Logout: "退出登录",
+    },
+    Toast: {
+      Success: "登录成功",
+      Logining: "登录中……",
+      EmptyUserName: "用户名或邮箱不能为空",
+      EmptyPassword: "密码不能为空！",
+    },
+    GoToRegister: "前往注册",
+    ForgetPassword: "忘记/重置密码",
+  },
+  Profile: {
+    Title: "个人中心",
+    SubTitle: "个人中心",
+    Username: "账号",
+    Email: "邮箱",
+    Tokens: {
+      Title: "tokens",
+      SubTitle: "剩余tokens数量",
+    },
+    ChatCount: {
+      Title: "询问次数",
+      SubTitle: "剩余询问次数（GPT3.5等）",
+    },
+    AdvanceChatCount: {
+      Title: "询问次数（GPT4）",
+      SubTitle: "聊天询问次数（GPT4）",
+    },
+    DrawCount: {
+      Title: "绘图次数",
+      SubTitle: "剩余绘图次数",
+    },
+    Actions: {
+      Close: "关闭",
+      Pricing: "购买套餐",
+      GoToBalanceList: "更多",
+      ConsultAdministrator: "请咨询站长",
+    },
+    BalanceItem: {
+      Title: "套餐类型",
+      SubTitle: "",
+      CalcTypes: {
+        Total: "总额",
+        Daily: "每天",
+        Hourly: "每小时",
+        ThreeHourly: "每3小时",
+      },
+    },
+    ExpireList: {
+      Title: "过期时间",
+      SubTitle: "",
+    },
+  },
 };
 
 type DeepPartial<T> = T extends object

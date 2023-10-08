@@ -33,7 +33,7 @@ import { useAccessStore } from "../store";
 // 顶部导航栏
 import TopNavigation from "./top-navigation";
 // 登录按钮
-import LoginButton from "./login";
+// import LoginButton from "./login";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -57,6 +57,21 @@ const NewChat = dynamic(async () => (await import("./new-chat")).NewChat, {
 });
 
 const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
+  loading: () => <Loading noLogo />,
+});
+
+const LoginRegister = dynamic(
+  async () => (await import("./login-register")).LoginRegister,
+  {
+    loading: () => <Loading noLogo />,
+  },
+);
+
+const Profile = dynamic(async () => (await import("./profile")).Profile, {
+  loading: () => <Loading noLogo />,
+});
+
+const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
   loading: () => <Loading noLogo />,
 });
 
@@ -177,11 +192,14 @@ function Screen() {
       label: "Blog",
     },
   ];
-  const handleButtonClick = () => {
-    const callbackUrl = encodeURIComponent(window.location.href);
-    const url = `https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api&callback_url=${callbackUrl}`;
-    window.location.href = url;
-  };
+  // const handleButtonClick = () => {
+  //   const callbackUrl = encodeURIComponent(window.location.href);
+  //   const url = `https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api&callback_url=${callbackUrl}`;
+  //   window.location.href = url;
+  // };
+
+  const callbackUrl = encodeURIComponent(window.location.href);
+  const loginUrl = `https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api&callback_url=${callbackUrl}`;
 
   useEffect(() => {
     loadAsyncGoogleFont();
@@ -200,9 +218,7 @@ function Screen() {
       {!isAuth && !isMobileScreen && <TopNavigation links={links} />}
 
       {/* 添加登录按钮 */}
-      {!isAuth && !isMobileScreen && (
-        <LoginButton onClick={handleButtonClick} />
-      )}
+      {/* {!isAuth && !isMobileScreen && ( <LoginButton onClick={handleButtonClick} /> )} */}
 
       {isAuth ? (
         <>
@@ -219,6 +235,13 @@ function Screen() {
               <Route path={Path.Masks} element={<MaskPage />} />
               <Route path={Path.Chat} element={<Chat />} />
               <Route path={Path.Settings} element={<Settings />} />
+
+              <Route
+                path={Path.LoginRegister}
+                element={<LoginRegister url={loginUrl} />}
+              />
+              <Route path={Path.Profile} element={<Profile />} />
+              <Route path={Path.Pricing} element={<Pricing />} />
             </Routes>
           </div>
         </>
