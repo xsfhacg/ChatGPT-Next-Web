@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import styles from "./profile.module.scss";
 
@@ -50,33 +50,6 @@ export function Profile() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 判断登录状态，未登录就跳转到注册
-  const { fetchProfile } = profileStore;
-  useEffect(() => {
-    const loginKey = localStorage.getItem("login_key");
-    if (loginKey && loginKey.length > 0) {
-      fetchProfile(loginKey).then((res) => {
-        if (res.Code !== 200) {
-          logout();
-          navigate(Path.LoginRegister);
-        }
-      });
-    } else {
-      console.log("不存在key,跳转到登录界面");
-      navigate(Path.LoginRegister);
-    }
-  }, [fetchProfile, navigate]);
-
-  // 判断登录状态，未登录就跳转到注册
-  // useEffect(() => {
-  //   const loginState = localStorage.getItem("loggedIn");
-  //   if (!loginState) {
-  //     navigate(Path.LoginRegister);
-  //   }
-  // }, [navigate]);
-
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
   // 清空cookie
   function clearAllCookie() {
     var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
@@ -87,17 +60,44 @@ export function Profile() {
   }
 
   // 登出
-  function logout() {
+  const logout = useCallback(() => {
     setTimeout(() => {
-      // authStore.logout();
+      console.log("~~~开始登出~~~");
       clearAllCookie();
+      localStorage.removeItem("login_key");
       localStorage.removeItem("user_name");
       localStorage.removeItem("user_email");
       localStorage.setItem("loggedIn", "false");
       window.dispatchEvent(new Event("customEvent"));
       navigate(Path.LoginRegister);
     }, 500);
-  }
+  }, [navigate]);
+
+  // 判断登录状态，未登录就跳转到注册
+  const { fetchProfile } = profileStore;
+  useEffect(() => {
+    const loginKey = localStorage.getItem("login_key");
+    if (loginKey && loginKey.length > 0) {
+      fetchProfile(loginKey).then((res) => {
+        if (res.Code !== 200) {
+          logout();
+        }
+      });
+    } else {
+      console.log("不存在key,跳转到登录界面");
+      navigate(Path.LoginRegister);
+    }
+  }, [fetchProfile, navigate, logout]);
+
+  // 判断登录状态，未登录就跳转到注册
+  // useEffect(() => {
+  //   const loginState = localStorage.getItem("loggedIn");
+  //   if (!loginState) {
+  //     navigate(Path.LoginRegister);
+  //   }
+  // }, [navigate]);
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   return (
     <ErrorBoundary>
