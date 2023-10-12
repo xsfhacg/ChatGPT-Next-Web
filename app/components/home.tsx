@@ -149,7 +149,7 @@ function Screen() {
   const isAuth = location.pathname === Path.Auth;
   const isMobileScreen = useMobileScreen();
   const shouldTightBorder =
-    config.tightBorder && !isMobileScreen && !getClientConfig()?.isApp;
+    getClientConfig()?.isApp || (config.tightBorder && !isMobileScreen);
 
   const links = [
     // { to: '/', label: 'Home' },
