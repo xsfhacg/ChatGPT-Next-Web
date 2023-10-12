@@ -34,7 +34,8 @@ export async function getBrowserFingerprint(): Promise<string> {
 
 // 保存数据
 export async function saveChatMessage(data: any): Promise<void> {
-  const url = "http://www.orangeui.cn:10030/aicenter/save_chat_message";
+  const login_key = localStorage.getItem("login_key");
+  const url = `http://www.orangeui.cn:10030/aicenter/save_chat_message?key=${login_key}`;
   // const url = "/save_api/aicenter/save_chat_message";
 
   try {

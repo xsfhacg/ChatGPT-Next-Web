@@ -454,17 +454,17 @@ const cn = {
     ChatCount: {
       Title: "GPT3.5套餐余量",
       SubTitle: "剩余询问次数（GPT3.5等）",
-      FreeTitle: "GPT3.5每日免费次数",
+      FreeTitle: "GPT3.5每日剩余免费次数",
     },
     AdvanceChatCount: {
       Title: "GPT4.0套餐余量",
       SubTitle: "聊天询问次数（GPT4）",
-      FreeTitle: "GPT4.0每日免费次数",
+      FreeTitle: "GPT4.0每日剩余免费次数",
     },
     DrawCount: {
       Title: "绘图套餐余量",
       SubTitle: "剩余绘图次数",
-      FreeTitle: "绘图每日免费次数",
+      FreeTitle: "绘图每日剩余免费次数",
     },
     Actions: {
       Close: "关闭",
