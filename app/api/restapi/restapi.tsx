@@ -91,3 +91,17 @@ export async function sendInviteCode(invite_code: string) {
     console.error(error);
   }
 }
+
+// 刷新套餐次数
+export async function refreshChatCount() {
+  const login_key = localStorage.getItem("login_key");
+  try {
+    const response = await axios.get(
+      `http://www.orangeui.cn:10030/usercenter/sync_user_chatgpt_use_status?key=${login_key}`,
+    );
+    console.log(response.data);
+    // return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}

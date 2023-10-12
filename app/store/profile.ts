@@ -106,7 +106,7 @@ export const useProfileStore = create<ProfileStore>()(
                 expiresTime: data.expiresTime,
               }));
             } else {
-              console.log(" [Profile] 获取用户配置失败 ");
+              console.log(" [Profile] 获取用户配置失败: ", res.Desc);
               // set(() => ({
               //   user_id: '',
               //   tokens: 0,

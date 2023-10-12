@@ -11,6 +11,7 @@ import QRCode from "qrcode";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Path } from "../constant";
+import { refreshChatCount } from "../api/restapi/restapi";
 
 const CustomDialogTitle = styled(DialogTitle)({
   backgroundColor: "#3f51b5",
@@ -96,6 +97,7 @@ function QRCodeDialog(props: {
         setMessage("支付成功");
         setSeverity("success");
         setIsopen(true);
+        await refreshChatCount();
         if (intervalId) {
           clearInterval(intervalId); // 取消轮询
         }
@@ -138,6 +140,7 @@ function QRCodeDialog(props: {
       setMessage("支付成功");
       setSeverity("success");
       setIsopen(true);
+      await refreshChatCount();
       setTimeout(() => {
         handleClose();
         navigate(Path.Profile);
