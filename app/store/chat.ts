@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { trimTopic } from "../utils";
+import { formatTimestamp, trimTopic } from "../utils";
 
 import Locale, { getLang } from "../locales";
 import { showToast } from "../components/ui-lib";
@@ -34,24 +34,10 @@ export async function getBrowserFingerprint(): Promise<string> {
   return globalFingerprint;
 }
 
-// 时间戳格式化
-export function formatTimestamp(timestamp: number): string {
-  const date = new Date(timestamp);
-
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
-
-  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  return formattedDate;
-}
 // 保存数据
 export async function saveChatMessage(data: any): Promise<void> {
-  // const url = 'http://localhost:10030/aicenter/save_chat_message';
-  const url = "/save_api/aicenter/save_chat_message";
+  const url = "http://www.orangeui.cn:10030/aicenter/save_chat_message";
+  // const url = "/save_api/aicenter/save_chat_message";
 
   try {
     const response = await fetch(url, {
@@ -350,7 +336,8 @@ export const useChatStore = createPersistStore(
         console.log("[User Input] after template: ", userContent);
 
         // 保存问题JSON
-        const user_id = await getBrowserFingerprint();
+        // const user_id = await getBrowserFingerprint();
+        const user_id = localStorage.getItem("user_fid");
         let requestObj = {
           temp_user_id: user_id,
           sender_temp_user_id: user_id,
@@ -360,7 +347,7 @@ export const useChatStore = createPersistStore(
           message: userContent.trimStart(),
           createtime: formatTimestamp(Date.now()),
         };
-        console.log(requestObj);
+        console.log("问题JSON: ", requestObj);
         saveChatMessage(requestObj);
 
         const userMessage: ChatMessage = createMessage({
@@ -562,6 +549,7 @@ export const useChatStore = createPersistStore(
 
       // 总结会话
       async summarizeSession() {
+        console.log("总结会话");
         const config = useAppConfig.getState();
         const session = get().currentSession();
 
@@ -622,38 +610,45 @@ export const useChatStore = createPersistStore(
         // console.log(
         //   "【当前对话】:",
         //   session.topic,
-        //   toBeSummarizedMsgs.slice(-2)
+        //   messages.slice(-2)
         // );
 
         // 创建单次会话对象返回给接口保存
-        const user_id = await getBrowserFingerprint();
-        let sessionObj = {
-          user_id: user_id,
-          topic: session.topic,
-          topic_id: session.id,
-          request: toBeSummarizedMsgs.slice(-2)[0],
-          response: toBeSummarizedMsgs.slice(-2)[1],
-          mask: session.mask,
-          memoryPrompt: session.memoryPrompt,
-        };
+        // const user_id = await getBrowserFingerprint();
+        const user_id = localStorage.getItem("user_fid");
+
+        // let sessionObj = {
+        //   user_id: user_id,
+        //   topic: session.topic,
+        //   topic_id: session.id,
+        //   request: messages.slice(-2)[0],
+        //   response: messages.slice(-2)[1],
+        //   mask: session.mask,
+        //   memoryPrompt: session.memoryPrompt,
+        // };
         // console.log(sessionObj);
 
-        // 保存回答JSON
-        let responseObj = {
-          temp_user_id: user_id,
-          sender_temp_user_id: "ai",
-          session_id: session.id,
-          session_topic: session.topic,
-          ai_model: toBeSummarizedMsgs.slice(-1)[0].model,
-          message: toBeSummarizedMsgs.slice(-1)[0].content,
-          createtime: formatTimestamp(Date.now()),
-        };
-        console.log(responseObj);
-        // 判断一下，最后一条是ai回答才保存
-        if (toBeSummarizedMsgs.slice(-1)[0].role === "assistant") {
+        // 判断一下，最后一条是ai回答才保存回答JSON
+        if (
+          messages.slice(-1)[0] &&
+          messages.slice(-1)[0].role === "assistant"
+        ) {
+          let responseObj = {
+            temp_user_id: user_id,
+            sender_temp_user_id: "ai",
+            session_id: session.id,
+            session_topic: session.topic,
+            ai_model: messages.slice(-1)[0].model,
+            message: messages.slice(-1)[0].content,
+            createtime: formatTimestamp(Date.now()),
+          };
+          console.log("回答JSON: ", responseObj);
           saveChatMessage(responseObj);
         } else {
-          console.log("[当前非回答]: ", toBeSummarizedMsgs.slice(-1)[0]);
+          console.log(
+            "[当前非回答，无需保存]: ",
+            toBeSummarizedMsgs.slice(-1)[0],
+          );
         }
 
         // add memory prompt

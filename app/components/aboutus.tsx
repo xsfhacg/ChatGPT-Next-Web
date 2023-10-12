@@ -61,7 +61,7 @@ export default function ControlledAccordions() {
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-            我们团队正在壮大，计划紧跟openai官方的节奏，目前gpt4已支持，但是官方接口权限一直未申请下来，团队也在积极申请接口权限，一旦申请下来就会开放gpt4功能，同时我们也在开发文字生成图片，以及其他更贴合于办公场景的功能，不久就会发布上线.
+            我们团队正在壮大，计划紧跟openai官方的节奏，目前gpt4已支持，但是官方接口权限一直未申请下来，团队也在积极申请接口权限，一旦申请下来就会开放gpt4功能.
           </Typography>
         </AccordionDetails>
       </Accordion>

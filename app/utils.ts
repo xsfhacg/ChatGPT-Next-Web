@@ -214,3 +214,55 @@ export function isMacOS(): boolean {
   }
   return false;
 }
+
+// 时间戳格式化，格式为：'2023-10-10 10:10:10'
+export function formatTimestamp(timestamp: number): string {
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
+
+  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  return formattedDate;
+}
+
+// 获取当前时间，格式为：'2023-10-10 10:10:10'
+function fillZero(num: number): string {
+  let realNum: string;
+  if (num < 10) {
+    realNum = "0" + num;
+  } else {
+    realNum = num.toString();
+  }
+  return realNum;
+}
+export function getTime(): string {
+  const myDate = new Date();
+  const myYear = myDate.getFullYear(); //获取完整的年份(4位,1970-????)
+  const myMonth = myDate.getMonth() + 1; //获取当前月份(0-11,0代表1月)
+  const myToday = myDate.getDate(); //获取当前日(1-31)
+  const myDay = myDate.getDay(); //获取当前星期X(0-6,0代表星期天)
+  const myHour = myDate.getHours(); //获取当前小时数(0-23)
+  const myMinute = myDate.getMinutes(); //获取当前分钟数(0-59)
+  const mySecond = myDate.getSeconds(); //获取当前秒数(0-59)
+  const week = [
+    "星期日",
+    "星期一",
+    "星期二",
+    "星期三",
+    "星期四",
+    "星期五",
+    "星期六",
+  ];
+  let nowTime: string;
+
+  nowTime = `${myYear}-${fillZero(myMonth)}-${fillZero(myToday)} ${fillZero(
+    myHour,
+  )}:${fillZero(myMinute)}:${fillZero(mySecond)}`;
+  console.log(nowTime);
+  return nowTime;
+}

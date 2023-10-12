@@ -688,7 +688,7 @@ export function Settings() {
               // <Link href={updateUrl} target="_blank" className="link">
               //   {Locale.Settings.Update.GoToUpdate}
               // </Link>
-              <>更新中~~~</>
+              <>敬请期待</>
             ) : (
               <IconButton
                 icon={<ResetIcon></ResetIcon>}

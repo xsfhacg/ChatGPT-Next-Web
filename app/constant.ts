@@ -22,7 +22,7 @@ export enum Path {
   LoginRegister = "/login-register",
   Profile = "/profile",
   Pricing = "/pricing",
-  Balances = "/balances",
+  // Balances = "/balances",
 }
 
 export enum ApiPath {

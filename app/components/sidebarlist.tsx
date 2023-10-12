@@ -60,7 +60,7 @@ export default function BasicList({ isLoggedIn, narrow }: BasicListProps) {
       <div className={styles["sidebar-header-bar"]}>
         <IconButton
           icon={<VipIcon />}
-          text={narrow ? undefined : "开通会员"}
+          text={narrow ? undefined : "购买套餐"}
           className={styles["sidebar-bar-button"]}
           onClick={() => navigate(Path.Pricing)}
           shadow

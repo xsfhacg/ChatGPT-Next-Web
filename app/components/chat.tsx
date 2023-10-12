@@ -49,6 +49,7 @@ import {
   useAppConfig,
   DEFAULT_TOPIC,
   ModelType,
+  useProfileStore,
 } from "../store";
 
 import {
@@ -92,6 +93,8 @@ import { ChatCommandPrefix, useChatCommand, useCommand } from "../command";
 import { prettyObject } from "../utils/format";
 import { ExportMessageModal } from "./exporter";
 import { getClientConfig } from "../config/client";
+
+import MySnackbar from "./mysnackbar";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -693,7 +696,90 @@ function _Chat() {
     }
   };
 
+  // 用户信息
+  const profileStore = useProfileStore();
+
+  const [show, setShow] = useState(false);
+  const [severity, setSeverity] = useState("info");
+  const [message, setMessage] = useState("");
+  const handleClose = () => setShow(false);
+  const [freeleft, setFreeleft] = useState("");
+  const [freeshow, setFreeshow] = useState(false);
+
+  // 控制本地用户存储的次数
+  const setLocalStorageCount = (ai_model: string) => {
+    const isGPT35Model = ai_model.includes("gpt-3.5");
+    console.log("计数前 profileStore:", profileStore);
+    if (isGPT35Model) {
+      if (profileStore.free_chat_count > 0) {
+        profileStore.free_chat_count -= 1;
+        return;
+      }
+      if (profileStore.limit_chat_count > 0) {
+        profileStore.limit_chat_count -= 1;
+        return;
+      }
+    } else {
+      if (profileStore.free_advanced_chat_count > 0) {
+        profileStore.free_advanced_chat_count -= 1;
+        return;
+      }
+      if (profileStore.limit_advanced_chat_count > 0) {
+        profileStore.limit_advanced_chat_count -= 1;
+        return;
+      }
+    }
+  };
+
   const doSubmit = (userInput: string) => {
+    const loggedIn = localStorage.getItem("loggedIn");
+    const loginKey = localStorage.getItem("login_key");
+
+    // 当前对话模型
+    const chatModel = session.mask.modelConfig.model;
+
+    // GPT3.5剩余 免费/套餐 次数
+    const freeChatCount = profileStore.free_chat_count;
+    const limitChatCount = profileStore.limit_chat_count;
+    // GPT4.0剩余 免费/套餐 次数
+    const freeAdvancedChatCount = profileStore.free_advanced_chat_count;
+    const limitAdvancedChatCount = profileStore.limit_advanced_chat_count;
+    // 绘图剩余 免费/套餐 次数
+    const freeDrtawCount = profileStore.freer_draw_count;
+    const limitDrtawCount = profileStore.limit_draw_count;
+
+    // 询问前判断登录状态
+    if (loggedIn === "false" || !loginKey) {
+      setShow(true);
+      setSeverity("info");
+      setMessage("请登录后再试");
+      // setTimeout(() => {
+      //   navigate(Path.LoginRegister);
+      // }, 1000);
+      return;
+    }
+
+    // 询问前判断每日免费额度和套餐余量
+    const isGPT35Model = chatModel.includes("gpt-3.5");
+    const isFreeChatCountExhausted = isGPT35Model
+      ? freeChatCount === 0
+      : freeAdvancedChatCount === 0;
+    const isLimitChatCountExhausted = isGPT35Model
+      ? limitChatCount === 0
+      : limitAdvancedChatCount === 0;
+    const modelName = isGPT35Model ? "GPT3.5" : "GPT4.0";
+    console.log(`当前为${modelName}模型组：`, chatModel);
+
+    if (isFreeChatCountExhausted && isLimitChatCountExhausted) {
+      setShow(true);
+      setSeverity("info");
+      setMessage(`${modelName}免费次数已耗尽，请订阅后继续使用`);
+      setTimeout(() => {
+        navigate(Path.Pricing);
+      }, 1000);
+      return;
+    }
+
     if (userInput.trim() === "") return;
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
@@ -709,6 +795,9 @@ function _Chat() {
     setPromptHints([]);
     if (!isMobileScreen) inputRef.current?.focus();
     setAutoScroll(true);
+
+    // 收到回答后再去减profileStore的次数
+    setLocalStorageCount(chatModel);
   };
 
   const onPromptSelect = (prompt: RenderPompt) => {
@@ -1314,6 +1403,12 @@ function _Chat() {
             className={styles["chat-input-send"]}
             type="primary"
             onClick={() => doSubmit(userInput)}
+          />
+          <MySnackbar
+            open={show}
+            handleClose={handleClose}
+            severity={severity}
+            message={message}
           />
         </div>
       </div>

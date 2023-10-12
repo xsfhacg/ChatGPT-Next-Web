@@ -7,6 +7,10 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import React from "react";
 import getOrderStatus from "../api/restapi/authorder";
 import MySnackbar from "./mysnackbar";
+import QRCode from "qrcode";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Path } from "../constant";
 
 const CustomDialogTitle = styled(DialogTitle)({
   backgroundColor: "#3f51b5",
@@ -18,7 +22,23 @@ const CustomDialogContent = styled(DialogContent)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "28px",
+  padding: "0 20px",
+});
+
+// 支付套餐信息
+const CustomDialogFooter = styled(DialogContent)({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: "0 0 20px 0",
+  color: "red",
+});
+
+// 底部支付提示
+const CustomDialogHint = styled(DialogContent)({
+  margin: "1rem",
+  border: "1px solid gold",
+  backgroundColor: "#FFFBE6",
 });
 
 function QRCodeDialog(props: {
@@ -26,9 +46,23 @@ function QRCodeDialog(props: {
   handleClose: any;
   imageURL: any;
   paymentId: any;
-  orderId: any;
+  appid: any;
+  userId: any;
+  billId: any;
+  title: any;
+  money: any;
 }) {
-  const { open, handleClose, imageURL, paymentId, orderId } = props;
+  const {
+    open,
+    handleClose,
+    imageURL,
+    paymentId,
+    appid,
+    userId,
+    billId,
+    title,
+    money,
+  } = props;
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [severity, setSeverity] = React.useState("success");
@@ -36,52 +70,135 @@ function QRCodeDialog(props: {
   const onhandleClose = () => {
     setIsopen(false);
   };
+  const navigate = useNavigate();
+
+  const [imgUrl, setImgUrl] = useState("");
+  useEffect(() => {
+    // const canvas = document.getElementById('canvas');
+    // QRCode.toCanvas(canvas, imageURL);
+
+    QRCode.toDataURL(
+      imageURL,
+      (error: Error | null | undefined, url: string) => {
+        setImgUrl(url);
+      },
+    );
+  }, [imageURL]);
+
+  // 订单支付状态轮询
+  useEffect(() => {
+    // 定时器 ID
+    let intervalId: NodeJS.Timeout;
+
+    const checkPayState = async () => {
+      const status = await getOrderStatus(appid, userId, billId);
+      if (status === "payed") {
+        setMessage("支付成功");
+        setSeverity("success");
+        setIsopen(true);
+        if (intervalId) {
+          clearInterval(intervalId); // 取消轮询
+        }
+        setTimeout(() => {
+          handleClose();
+          navigate(Path.Profile);
+        }, 1000);
+      }
+    };
+
+    // 定时执行
+    const startPolling = () => {
+      intervalId = setInterval(checkPayState, 3000); // 每隔 3 秒执行一次
+    };
+    // 启动定时轮询
+    if (open) {
+      startPolling();
+      // 超过1分钟未支付取消轮询
+      setTimeout(function () {
+        if (intervalId) {
+          clearInterval(intervalId);
+        }
+      }, 60000);
+    }
+
+    // 在组件卸载时清除定时器
+    return () => {
+      if (intervalId) {
+        console.log("取消订单支付状态轮询");
+        clearInterval(intervalId);
+        onhandleClose();
+      }
+    };
+  }, [open, appid, billId, handleClose, userId, navigate]);
 
   async function handleClick() {
     setLoading(true);
-    const status = await getOrderStatus(orderId);
-    if (status === "completed") {
+    const status = await getOrderStatus(appid, userId, billId);
+    if (status === "payed") {
       setMessage("支付成功");
       setSeverity("success");
       setIsopen(true);
       setTimeout(() => {
         handleClose();
+        navigate(Path.Profile);
       }, 1000);
     } else {
-      setMessage("暂未收到付款，请稍后重试");
+      setMessage(
+        "暂未收到付款，请稍后重试，若遇到支付异常请联系客服QQ：452330643",
+      );
       setSeverity("warning");
       setIsopen(true);
     }
     console.log(status);
     setLoading(false);
   }
+
   return (
     <div>
       <Dialog open={open}>
         <CustomDialogTitle sx={{ mb: 2 }}>
           使用{paymentId}扫描下方二维码支付
         </CustomDialogTitle>
-        <CustomDialogContent sx={{ mb: 0 }}>
-          <img src={imageURL} alt="图片" />
+        <CustomDialogContent sx={{}}>
+          {imgUrl ? (
+            <img src={imgUrl} alt="支付二维码" />
+          ) : (
+            <div>正在生成支付二维码...</div>
+          )}
         </CustomDialogContent>
+        <CustomDialogFooter sx={{}}>
+          <span>
+            {title} : {money}元
+          </span>
+        </CustomDialogFooter>
         <Stack
           spacing={2}
           justifyContent="center"
           direction="row"
-          sx={{ mb: 2 }}
+          sx={{ mb: 0 }}
         >
-          <Button onClick={handleClose} variant="text">
-            取消
-          </Button>
           <LoadingButton
             size="small"
             onClick={handleClick}
             loading={loading}
             loadingIndicator="。。"
             variant="outlined"
+            sx={{
+              "&:hover": {},
+              color: "white",
+              border: 0,
+              padding: 0,
+              fontSize: "14px",
+              backgroundColor: "deepskyblue",
+            }}
           >
-            <span>已支付</span>
+            已支付
           </LoadingButton>
+          <Button onClick={handleClose} variant="text">
+            取消
+          </Button>
+
+          {/* 顶部悬浮提示 */}
           <MySnackbar
             open={isopen}
             handleClose={onhandleClose}
@@ -89,6 +206,7 @@ function QRCodeDialog(props: {
             message={message}
           />
         </Stack>
+        <CustomDialogHint>一分钟内未支付成功请重新发起</CustomDialogHint>
       </Dialog>
     </div>
   );

@@ -18,7 +18,7 @@ const onChange: CountdownProps["onChange"] = (val) => {
 
 const CountDown: React.FC = () => (
   <Row gutter={16}>
-    <Col span={24} style={{ marginTop: 10 }}>
+    <Col span={24} style={{ marginTop: 0 }}>
       <span style={{ fontSize: "14px" }}>
         折扣剩余时间：
         <Countdown

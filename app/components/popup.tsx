@@ -39,22 +39,22 @@ export function TitlebarBelowMasonryImageList() {
 
 const itemData = [
   {
-    img: "./611686556446_.pic.jpg",
+    img: "../images/1.jpg",
     title: "第一步：复制当前页面网址",
     author: "swabdesign",
   },
   {
-    img: "./621686556589_.pic.jpg",
+    img: "../images/2.jpg",
     title: "第二步：打开微信，粘贴网址并搜索",
     author: "Pavel Nekoranec",
   },
   {
-    img: "./631686556626_.pic.jpg",
+    img: "../images/3.jpg",
     title: "第三步：点击搜索结果",
     author: "Charles Deluvio",
   },
   {
-    img: "./641686556698_.pic.jpg",
+    img: "../images/4.jpg",
     title: "第四步：访问网页并重新登录发起支付",
     author: "Christian Mackie",
   },

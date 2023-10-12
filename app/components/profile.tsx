@@ -64,10 +64,12 @@ export function Profile() {
     setTimeout(() => {
       console.log("~~~开始登出~~~");
       clearAllCookie();
+      localStorage.setItem("loggedIn", "false");
+      localStorage.removeItem("appid");
       localStorage.removeItem("login_key");
+      localStorage.removeItem("user_fid");
       localStorage.removeItem("user_name");
       localStorage.removeItem("user_email");
-      localStorage.setItem("loggedIn", "false");
       window.dispatchEvent(new Event("customEvent"));
       navigate(Path.LoginRegister);
     }, 500);
@@ -149,56 +151,49 @@ export function Profile() {
 
           {/* 用户名 */}
           <ListItem title={Locale.Profile.Username}>
-            {/* <span>{authStore.username}</span> */}
             <span>{localStorage.getItem("user_name")}</span>
           </ListItem>
 
           {/* 邮箱 */}
           <ListItem title={Locale.Profile.Email}>
-            {/* <span>{authStore.email}</span> */}
             <span>{localStorage.getItem("user_email")}</span>
           </ListItem>
         </List>
 
         <List>
-          {/* 套餐类型 */}
-          {/* {profileStore.balances && profileStore.balances.length > 0 ? (
-            <ListItem
-              title={Locale.Profile.BalanceItem.Title}
-              subTitle={Locale.Profile.BalanceItem.SubTitle}
-            >
-              <span>
-                {profileStore.balances[0].calcType == "Total"
-                  ? Locale.Profile.BalanceItem.CalcTypes.Total
-                  : profileStore.balances[0].calcType == "Daily"
-                  ? Locale.Profile.BalanceItem.CalcTypes.Daily
-                  : profileStore.balances[0].calcType == "Hourly"
-                  ? Locale.Profile.BalanceItem.CalcTypes.Hourly
-                  : profileStore.balances[0].calcType == "ThreeHourly"
-                  ? Locale.Profile.BalanceItem.CalcTypes.ThreeHourly
-                  : ""}
-              </span>
-            </ListItem>
-          ) : (
-            <></>
-          )} */}
+          {/* GPT3.5每日免费次数 */}
+          <ListItem title={Locale.Profile.ChatCount.FreeTitle}>
+            <span>{profileStore.free_chat_count}</span>
+          </ListItem>
 
+          {/* GPT4.0每日免费次数 */}
+          {/* <ListItem title={Locale.Profile.AdvanceChatCount.FreeTitle}>
+            <span>{profileStore.free_advanced_chat_count}</span>
+          </ListItem> */}
+
+          {/* 绘图每日免费次数 */}
+          {/* <ListItem title={Locale.Profile.DrawCount.FreeTitle}>
+            <span>{profileStore.freer_draw_count}</span>
+          </ListItem> */}
+        </List>
+
+        <List>
           {/* 剩余tokens数量 */}
-          <ListItem
+          {/* <ListItem
             title={Locale.Profile.Tokens.Title}
-            subTitle={Locale.Profile.Tokens.SubTitle}
+            // subTitle={Locale.Profile.Tokens.SubTitle}
           >
             <span>
               {profileStore.limit_tokens == -1
                 ? "无限制"
                 : profileStore.limit_tokens}
             </span>
-          </ListItem>
+          </ListItem> */}
 
-          {/* 剩余GPT3.5次数 */}
+          {/* 套餐剩余GPT3.5次数 */}
           <ListItem
             title={Locale.Profile.ChatCount.Title}
-            subTitle={Locale.Profile.ChatCount.SubTitle}
+            // subTitle={Locale.Profile.ChatCount.SubTitle}
           >
             <span>
               {profileStore.limit_chat_count == -1
@@ -207,29 +202,29 @@ export function Profile() {
             </span>
           </ListItem>
 
-          {/* 剩余GPT4次数 */}
-          <ListItem
+          {/* 套餐剩余GPT4次数 */}
+          {/* <ListItem
             title={Locale.Profile.AdvanceChatCount.Title}
-            subTitle={Locale.Profile.AdvanceChatCount.SubTitle}
+            // subTitle={Locale.Profile.AdvanceChatCount.SubTitle}
           >
             <span>
               {profileStore.limit_advanced_chat_count == -1
                 ? "无限制"
                 : profileStore.limit_advanced_chat_count}
             </span>
-          </ListItem>
+          </ListItem> */}
 
-          {/* 剩余绘图次数 */}
-          <ListItem
+          {/* 套餐剩余绘图次数 */}
+          {/* <ListItem
             title={Locale.Profile.DrawCount.Title}
-            subTitle={Locale.Profile.DrawCount.SubTitle}
+            // subTitle={Locale.Profile.DrawCount.SubTitle}
           >
             <span>
               {profileStore.limit_draw_count == -1
                 ? "无限制"
                 : profileStore.limit_draw_count}
             </span>
-          </ListItem>
+          </ListItem> */}
 
           {/* 套餐过期时间 */}
           {profileStore.expiresTime && profileStore.expiresTime.length > 0 ? (
@@ -237,7 +232,6 @@ export function Profile() {
               title={Locale.Profile.ExpireList.Title}
               subTitle={Locale.Profile.ExpireList.SubTitle}
             >
-              {/* <span>{profileStore.balances[0].expireTime}</span> */}
               <span>{profileStore.expiresTime}</span>
             </ListItem>
           ) : (
@@ -245,18 +239,14 @@ export function Profile() {
           )}
 
           {/* 更多 */}
-          {/* {profileStore.balances && profileStore.balances.length > 1 ? ( */}
-          <ListItem title={Locale.Profile.Actions.GoToBalanceList}>
+          {/* <ListItem title={Locale.Profile.Actions.GoToBalanceList}>
             <IconButton
               text={Locale.Profile.Actions.GoToBalanceList}
               onClick={() => {
                 showToast(Locale.Profile.Actions.ConsultAdministrator);
               }}
             />
-          </ListItem>
-          {/* ) : (
-            <></>
-          )} */}
+          </ListItem> */}
         </List>
 
         <List>

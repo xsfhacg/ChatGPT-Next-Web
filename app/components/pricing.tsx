@@ -1,4 +1,4 @@
-import React, { use, useEffect } from "react";
+import React, { use, useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -32,6 +32,10 @@ import Banner3 from "./banner3";
 import AlertDialog from "./popup";
 // import { Padding } from "@mui/icons-material";
 
+import { Product, GetProductData } from "../api/restapi/restapi";
+import { useAppConfig, useProfileStore } from "../store";
+import { getTime } from "../utils";
+
 mixpanel.init("6c4c1c926708fd247571a67ed0a25d6f", { debug: true });
 
 const theme = createTheme({
@@ -52,7 +56,7 @@ const theme = createTheme({
 });
 
 // 从JSON数组中获取会员订阅信息
-const pricingOptions = [
+const pricingOptions2 = [
   {
     title: "周会员",
     price: 14.9,
@@ -96,10 +100,31 @@ const pricingOptions = [
 ];
 
 export function Pricing() {
-  const [ismoble, setismobile] = React.useState(false);
-  const [isphone, setisphone] = React.useState(false);
+  const profileStore = useProfileStore();
+  const [ismoble, setismobile] = useState(false);
+  const [isphone, setisphone] = useState(false);
+  const [pricingOptions, setPricingOptions] = useState<Product[]>([]);
 
-  React.useEffect(() => {
+  // 组件加载时获取商品列表
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userFid = profileStore.user_id;
+        const productId = 473;
+        const products = await GetProductData(userFid, productId);
+        console.log("商品列表：", products);
+        setPricingOptions(products);
+      } catch (error) {
+        console.error("获取商品列表失败:", error);
+        setPricingOptions([]); // 获取商品列表出错时，将 pricingOptions 设置为空数组
+      }
+    };
+
+    fetchData();
+  }, [profileStore.user_id]);
+
+  // 组件加载时判断设备类型和登录状态
+  useEffect(() => {
     const isPhone = /Mobile|(Android|iPhone).+Mobile/.test(
       window.navigator.userAgent,
     );
@@ -111,170 +136,242 @@ export function Pricing() {
       !/MicroMessenger/.test(window.navigator.userAgent);
     if (isMobileDevice) {
       setismobile(true);
-      setSelectedPaymentMethod("alipay");
+      setSelectedPaymentMethod("alipay_scan_qrcode");
     }
     const res = isUserLogin();
-    console.log(res);
+    console.log("登录状态: ", res);
     if (!res) {
       window.location.href = "/#/login-register";
     }
   }, []);
+
   const navigate = useNavigate();
-  const [open, setOpen] = React.useState(false);
-  const [imageURL, setImageURL] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
+  const [open, setOpen] = useState(false); // 扫码对话框显示状态
+  const [imageURL, setImageURL] = useState(""); // 付款二维码地址链接
+  const [loading, setLoading] = useState(false); //加载状态
 
   const handleClose = () => {
     setOpen(false);
   };
   const [SelectedPaymentMethod, setSelectedPaymentMethod] =
-    React.useState("wechat");
-  const [transpayment, setTranspayment] = React.useState("微信");
-  const [selectedPricingOption, setSelectedPricingOption] = React.useState(1);
-  const user_id = localStorage.getItem("user_info");
-  const [order_id, setOrder_id] = React.useState(
+    useState("wxpay_scan_qrcode");
+  const [transpayment, setTranspayment] = useState("微信");
+  const [selectedPricingOption, setSelectedPricingOption] = useState(1);
+  const appid = localStorage.getItem("appid");
+  const user_id = localStorage.getItem("user_fid");
+  const [order_id, setOrder_id] = useState(
     localStorage.getItem("current_order_id"),
   );
+  const [bill_id, setBill_id] = useState(
+    localStorage.getItem("current_bill_id"),
+  );
+  const [bill_title, setBill_title] = useState("");
+  const [bill_price, setBill_price] = useState(0);
 
-  // 调用https://chatgpt.funny-code.top/wp-json/wc/v3/orders端口，使用woocommerce restAPI创建一个订单
+  if (pricingOptions.length === 0) {
+    console.log("商品未获取，退出");
+    return null; // 或者返回一个加载中的状态
+  }
+
+  // 创建订单
   const handleSubmit = async () => {
     setLoading(true);
-    const userAgent = isWebApp();
-    console.log(userAgent);
-    const productId = pricingOptions[selectedPricingOption].id;
-    const productTitle = pricingOptions[selectedPricingOption].title;
-    const productPrice = pricingOptions[selectedPricingOption].price;
-    console.log(productId, productTitle, productPrice);
-    mixpanel.track("去支付", {
-      用户名: user_id,
-      支付方式: selectedPricingOption,
-      会员选项: productTitle,
-      会员价格: productPrice,
-    });
-    const config = {
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_JWT_TOKEN}`,
+    // const userAgent = isWebApp();
+    // console.log("userAgent: ", userAgent);
+
+    const shopFid = pricingOptions[selectedPricingOption].shopFid;
+    const shopGoodsFid = pricingOptions[selectedPricingOption].shopGoodsFid;
+    const shopGoodsSpecFid = pricingOptions[selectedPricingOption].id;
+    // console.log(shopFid, shopGoodsFid, shopGoodsSpecFid);
+
+    setBill_title(pricingOptions[selectedPricingOption].title);
+    setBill_price(pricingOptions[selectedPricingOption].price);
+
+    // const productId = pricingOptions[selectedPricingOption].id;
+    // const productTitle = pricingOptions[selectedPricingOption].title;
+    // const productPrice = pricingOptions[selectedPricingOption].price;
+    // console.log(productId, productTitle, productPrice);
+    // mixpanel.track("去支付", {
+    //   用户名: user_id,
+    //   支付方式: selectedPricingOption,
+    //   套餐选项: productTitle,
+    //   套餐价格: productPrice,
+    // });
+    // const config = {
+    //   headers: {
+    //     Authorization: `Bearer ${process.env.NEXT_PUBLIC_JWT_TOKEN}`,
+    //   },
+    // };
+    // const data = {
+    //   payment_method: SelectedPaymentMethod,
+    //   payment_method_title: SelectedPaymentMethod,
+    //   set_paid: false,
+    //   customer_id: user_id,
+    //   billing: {},
+    //   shipping: {},
+    //   line_items: [
+    //     {
+    //       product_id: productId,
+    //       quantity: 1,
+    //     },
+    //   ],
+    //   shipping_lines: [
+    //     {
+    //       method_id: "flat_rate",
+    //       method_title: "Flat Rate",
+    //       total: "0",
+    //     },
+    //   ],
+    // };
+
+    const goodsListJson = [
+      {
+        shop_fid: shopFid,
+        shop_goods_fid: shopGoodsFid,
+        shop_goods_spec_fid: shopGoodsSpecFid,
+        shop_goods_attrs: "",
+        number: 1,
+        orderno: 0,
       },
-    };
-    const data = {
-      payment_method: SelectedPaymentMethod,
-      payment_method_title: SelectedPaymentMethod,
-      set_paid: false,
-      customer_id: user_id,
-      billing: {},
-      shipping: {},
-      line_items: [
+    ];
+
+    // const localorderdata = localStorage.getItem(
+    //   "orderdata_" + productId + "_" + SelectedPaymentMethod,
+    // );
+    // const currentTime = new Date();
+    // const currentTimestmp = currentTime.getTime();
+    // const getexptime = localorderdata ? JSON.parse(localorderdata).exptime : 0;
+    // if (localorderdata && currentTimestmp < getexptime) {
+    //   setLoading(false);
+    //   if (userAgent) {
+    //     window.location.href = JSON.parse(localorderdata).url;
+    //     return;
+    //   } else {
+    //     setImageURL(JSON.parse(localorderdata).urlQrcode);
+    //     setOpen(true);
+    //     return;
+    //   }
+    // } else {
+    try {
+      const response = await axios.get(
+        `http://www.orangeui.cn:10030/shopcenter/take_order`,
         {
-          product_id: productId,
-          quantity: 1,
+          params: {
+            appid: appid,
+            user_fid: user_id,
+            key: 123456,
+            deliver_type: "express",
+            recv_longitude: 0,
+            recv_latitude: 0,
+            recv_sex: 0,
+            is_book: 0,
+            tableware_quantity: 0,
+            is_used_score: 0,
+            used_score: 0,
+            is_only_pay_delivery_fee: 0,
+            want_arrive_time: getTime(),
+            shop_fid: shopFid,
+            shop_goods_list_json: JSON.stringify(goodsListJson),
+          },
         },
-      ],
-      shipping_lines: [
-        {
-          method_id: "flat_rate",
-          method_title: "Flat Rate",
-          total: "0",
-        },
-      ],
-    };
-    const localorderdata = localStorage.getItem(
-      "orderdata_" + productId + "_" + SelectedPaymentMethod,
-    );
-    const currentTime = new Date();
-    const currentTimestmp = currentTime.getTime();
-    const getexptime = localorderdata ? JSON.parse(localorderdata).exptime : 0;
-    if (localorderdata && currentTimestmp < getexptime) {
-      setLoading(false);
-      if (userAgent) {
-        window.location.href = JSON.parse(localorderdata).url;
-        return;
-      } else {
-        setImageURL(JSON.parse(localorderdata).urlQrcode);
-        setOpen(true);
-        return;
-      }
-    } else {
-      try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_WORDPRESS_API_URL}/wp-json/wc/v3/orders`,
-          data,
-          config,
-        );
-        console.log(response.data);
-        const orderId = response.data.id;
+      );
+      // console.log(response.data);
+      if (response.data.Code === 200) {
+        const orderId = response.data.Data.OrderInfo[0].fid;
+        const sumMoney = response.data.Data.OrderInfo[0].sum_money;
         setOrder_id(orderId);
         localStorage.setItem("current_order_id", orderId);
-        // setOrderId(response.data.id);
-        if (response.data.id) {
+        if (orderId) {
           try {
-            const getpaymentimg = await axios.post(
-              `${process.env.NEXT_PUBLIC_WORDPRESS_API_URL}/wp-json/my-plugin/v1/xunhupay`,
+            const getpaymentimg = await axios.get(
+              `http://www.orangeui.cn:10030/paycenter/prepare_pay_order`,
               {
-                trade_order_id: orderId,
-                payment: SelectedPaymentMethod,
-                total_fee: productPrice,
-                title: productTitle,
+                params: {
+                  appid: appid,
+                  user_fid: user_id,
+                  order_fid: orderId,
+                  money: sumMoney,
+                  order_type: "shop_center",
+                  bill_code: "",
+                  pay_type: SelectedPaymentMethod,
+                  name: "订单支付",
+                  desc: "感谢购买",
+                },
               },
             );
-            console.log(getpaymentimg.data);
-            const qrcode = JSON.parse(getpaymentimg.data);
-            console.log(qrcode);
-            if (userAgent) {
-              const ordertime = new Date();
-              const exptime = new Date(ordertime.getTime() + 15 * 60 * 1000);
-              const ordertimestamp = ordertime.getTime();
-              const exptimestamp = exptime.getTime();
-              let orderdata = {
-                urlQrcode: qrcode.url_qrcode,
-                url: qrcode.url,
-                productId: productId,
-                ordertime: ordertimestamp,
-                exptime: exptimestamp,
-                payment: SelectedPaymentMethod,
-              };
-              localStorage.setItem(
-                "orderdata_" + productId + "_" + SelectedPaymentMethod,
-                JSON.stringify(orderdata),
-              );
-              window.location.href = qrcode.url;
-              return;
-            }
-            setImageURL(qrcode.url_qrcode);
-            setOpen(true);
-            const ordertime = new Date();
-            const exptime = new Date(ordertime.getTime() + 15 * 60 * 1000);
-            const ordertimestamp = ordertime.getTime();
-            const exptimestamp = exptime.getTime();
+            // console.log(getpaymentimg.data);
 
-            let orderdata = {
-              urlQrcode: qrcode.url_qrcode,
-              url: qrcode.url,
-              productId: productId,
-              ordertime: ordertimestamp,
-              exptime: exptimestamp,
-              payment: SelectedPaymentMethod,
-            };
-            localStorage.setItem(
-              "orderdata_" + productId + "_" + SelectedPaymentMethod,
-              JSON.stringify(orderdata),
-            );
+            if (getpaymentimg.data.Code === 200) {
+              const billId = getpaymentimg.data.Data.UserBillMoney[0].fid;
+              setBill_id(billId);
+              const qrcode =
+                SelectedPaymentMethod === "alipay_scan_qrcode"
+                  ? getpaymentimg.data.Data.AliPayBack
+                  : getpaymentimg.data.Data.WxPayBack;
+              // console.log(qrcode);
+
+              // if (userAgent) {
+              //   const ordertime = new Date();
+              //   const exptime = new Date(ordertime.getTime() + 15 * 60 * 1000);
+              //   const ordertimestamp = ordertime.getTime();
+              //   const exptimestamp = exptime.getTime();
+              //   let orderdata = {
+              //     urlQrcode: qrcode.url_qrcode,
+              //     url: qrcode.url,
+              //     productId: productId,
+              //     ordertime: ordertimestamp,
+              //     exptime: exptimestamp,
+              //     payment: SelectedPaymentMethod,
+              //   };
+              //   localStorage.setItem(
+              //     "orderdata_" + productId + "_" + SelectedPaymentMethod,
+              //     JSON.stringify(orderdata),
+              //   );
+              //   window.location.href = qrcode.url;
+              //   return;
+              // }
+              setImageURL(qrcode.QRCodePayUrl);
+              setOpen(true);
+              // const ordertime = new Date();
+              // const exptime = new Date(ordertime.getTime() + 15 * 60 * 1000);
+              // const ordertimestamp = ordertime.getTime();
+              // const exptimestamp = exptime.getTime();
+
+              // let orderdata = {
+              //   urlQrcode: qrcode.QRCodePayUrl,
+              //   url: qrcode.url,
+              //   productId: productId,
+              //   ordertime: ordertimestamp,
+              //   exptime: exptimestamp,
+              //   payment: SelectedPaymentMethod,
+              // };
+              // localStorage.setItem(
+              //   "orderdata_" + productId + "_" + SelectedPaymentMethod,
+              //   JSON.stringify(orderdata),
+              // );
+            } else {
+              alert(getpaymentimg.data.Desc);
+            }
           } catch (error) {
             console.error(error);
           }
           setLoading(false);
         }
-      } catch (error) {
-        console.error(error);
+      } else {
+        alert(response.data.Desc);
       }
+    } catch (error) {
+      console.error(error);
     }
+    // }
   };
 
   return (
     <ThemeProvider theme={theme}>
       <div className="window-header">
         <div className="window-header-title">
-          <div className="window-header-main-title">开通会员</div>
-          <div className="window-header-sub-title">加入我们开始Chat</div>
+          <div className="window-header-main-title">购买套餐</div>
+          <div className="window-header-sub-title">立刻开始Chat吧</div>
         </div>
         <div className="window-actions">
           <div className="window-action-button">
@@ -290,7 +387,7 @@ export function Pricing() {
       <Container maxWidth="lg" sx={{ mt: 2, overflow: "auto" }}>
         <Banner3 />
         <Typography variant="h6" align="left" sx={{ mb: 3, mt: 1 }}>
-          选择会员
+          选择套餐
           <Typography
             component="span"
             variant="h6"
@@ -317,7 +414,9 @@ export function Pricing() {
                     cursor: "pointer",
                     position: "relative",
                     border:
-                      selectedPricingOption === index ? "2px solid #000" : "",
+                      selectedPricingOption === index
+                        ? "2px solid var(--primary)"
+                        : "",
                   }}
                   onClick={() => setSelectedPricingOption(index)}
                 >
@@ -398,20 +497,21 @@ export function Pricing() {
                 borderRadius: "5px",
                 cursor: "pointer",
                 border:
-                  SelectedPaymentMethod === "wechat" ? "2px solid #000" : "",
+                  SelectedPaymentMethod === "wxpay_scan_qrcode"
+                    ? "2px solid var(--primary)"
+                    : "",
               }}
               onClick={() => {
-                setSelectedPaymentMethod("wechat");
+                setSelectedPaymentMethod("wxpay_scan_qrcode");
                 setTranspayment("微信");
               }}
             >
               <CardContent
-                sx={
-                  {
-                    // backgroundColor: SelectedPaymentMethod === "wechat" ? "#f48fb1" : "",
-                    // color: SelectedPaymentMethod === "wechat" ? "#fff" : "",
-                  }
-                }
+                sx={{
+                  // backgroundColor: SelectedPaymentMethod === "wechat" ? "#f48fb1" : "",
+                  // color: SelectedPaymentMethod === "wechat" ? "#fff" : "",
+                  paddingBottom: "16px !important",
+                }}
               >
                 <Grid
                   container
@@ -424,7 +524,7 @@ export function Pricing() {
                     <Wechat />
                   </Grid>
                   <Typography variant="h6" align="center" sx={{ mb: 0 }}>
-                    微信支付
+                    微信
                   </Typography>
                 </Grid>
               </CardContent>
@@ -437,20 +537,21 @@ export function Pricing() {
                 borderRadius: "5px",
                 cursor: "pointer",
                 border:
-                  SelectedPaymentMethod === "alipay" ? "2px solid #000" : "",
+                  SelectedPaymentMethod === "alipay_scan_qrcode"
+                    ? "2px solid var(--primary)"
+                    : "",
               }}
               onClick={() => {
-                setSelectedPaymentMethod("alipay");
+                setSelectedPaymentMethod("alipay_scan_qrcode");
                 setTranspayment("支付宝");
               }}
             >
               <CardContent
-                sx={
-                  {
-                    // backgroundColor: SelectedPaymentMethod === "alipay" ? "#f48fb1" : "",
-                    // color: SelectedPaymentMethod === "alipay" ? "#fff" : "",
-                  }
-                }
+                sx={{
+                  // backgroundColor: SelectedPaymentMethod === "alipay" ? "#f48fb1" : "",
+                  // color: SelectedPaymentMethod === "alipay" ? "#fff" : "",
+                  paddingBottom: "16px !important",
+                }}
               >
                 <Grid
                   container
@@ -463,13 +564,14 @@ export function Pricing() {
                     <Alipay />
                   </Grid>
                   <Typography variant="h6" align="center" sx={{ mb: 0 }}>
-                    支付宝支付
+                    支付宝
                   </Typography>
                 </Grid>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
+
         {!ismoble && (
           <Grid item xs={6} sx={{ mb: 3 }}>
             <Grid container justifyContent="right">
@@ -575,12 +677,18 @@ export function Pricing() {
                         </Typography> */}
           </Box>
         )}
+
+        {/* 扫码对话框 */}
         <QRCodeDialog
           open={open}
           handleClose={handleClose}
           imageURL={imageURL}
           paymentId={transpayment}
-          orderId={order_id}
+          appid={appid}
+          userId={user_id}
+          billId={bill_id}
+          title={bill_title}
+          money={bill_price}
         />
         <Typography
           variant="h6"

@@ -448,20 +448,23 @@ const cn = {
     Username: "账号",
     Email: "邮箱",
     Tokens: {
-      Title: "tokens",
+      Title: "tokens套餐余量",
       SubTitle: "剩余tokens数量",
     },
     ChatCount: {
-      Title: "询问次数",
+      Title: "GPT3.5套餐余量",
       SubTitle: "剩余询问次数（GPT3.5等）",
+      FreeTitle: "GPT3.5每日免费次数",
     },
     AdvanceChatCount: {
-      Title: "询问次数（GPT4）",
+      Title: "GPT4.0套餐余量",
       SubTitle: "聊天询问次数（GPT4）",
+      FreeTitle: "GPT4.0每日免费次数",
     },
     DrawCount: {
-      Title: "绘图次数",
+      Title: "绘图套餐余量",
       SubTitle: "剩余绘图次数",
+      FreeTitle: "绘图每日免费次数",
     },
     Actions: {
       Close: "关闭",

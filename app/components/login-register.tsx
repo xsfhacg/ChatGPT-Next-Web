@@ -51,7 +51,9 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
   // }, []);
 
   useEffect(() => {
-    const loggedIn = document.cookie.includes("loggedIn=true");
+    // const loggedIn = document.cookie.includes("loggedIn=true");
+    const loggedIn = getCookie("loggedIn") || false;
+    console.log(loggedIn);
 
     if (loggedIn) {
       // 登录成功
@@ -67,8 +69,11 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
 
     const checkLoginCookie = () => {
       console.log("开始轮询登录cookie");
-      const loggedIn = document.cookie.includes("loggedIn=true");
-      const loginKey = getCookie("key") || "";
+      // const loggedIn = document.cookie.includes("loggedIn=true");
+      const appId = getCookie("appid") || "1000";
+      const loggedIn = getCookie("loggedIn") || false;
+      const loginKey = getCookie("login_key") || "";
+      const userFid = getCookie("user_fid") || "";
       const userName = getCookie("user_name") || "未登录";
       const userEmail = getCookie("user_email") || "未设置";
 
@@ -76,7 +81,9 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
         // 登录成功
         console.log("登录成功");
         localStorage.setItem("loggedIn", "true");
+        localStorage.setItem("appid", appId);
         localStorage.setItem("login_key", loginKey);
+        localStorage.setItem("user_fid", userFid);
         localStorage.setItem("user_name", userName);
         localStorage.setItem("user_email", userEmail);
         window.dispatchEvent(new Event("customEvent"));
