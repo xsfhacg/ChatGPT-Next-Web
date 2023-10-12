@@ -164,6 +164,7 @@ function QRCodeDialog(props: {
         </CustomDialogTitle>
         <CustomDialogContent sx={{}}>
           {imgUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={imgUrl} alt="支付二维码" />
           ) : (
             <div>正在生成支付二维码...</div>

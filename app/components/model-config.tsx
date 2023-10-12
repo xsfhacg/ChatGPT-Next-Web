@@ -14,7 +14,7 @@ export function ModelConfigList(props: {
   return (
     <>
       {/* 模型 (model) */}
-      <ListItem title={Locale.Settings.Model}>
+      {/* <ListItem title={Locale.Settings.Model}>
         <Select
           value={props.modelConfig.model}
           onChange={(e) => {
@@ -32,7 +32,7 @@ export function ModelConfigList(props: {
             </option>
           ))}
         </Select>
-      </ListItem>
+      </ListItem> */}
 
       {/* 随机性 (temperature) */}
       <ListItem

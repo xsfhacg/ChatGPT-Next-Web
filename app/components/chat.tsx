@@ -521,11 +521,11 @@ export function ChatActions(props: {
       />
 
       {/* 输入框上方的GPT版本切换按钮 */}
-      <ChatAction
+      {/* <ChatAction
         onClick={() => setShowModelSelector(true)}
         text={currentModel}
         icon={<RobotIcon />}
-      />
+      /> */}
 
       {showModelSelector && (
         <Selector
