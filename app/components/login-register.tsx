@@ -18,18 +18,6 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
   };
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  console.log(url);
-
-  useEffect(() => {
-    const res = isUserLogin();
-    console.log("当前登陆状态：", res);
-    if (res) {
-      // setOpen(true);
-      setMessage("您已登录，无需重复登录");
-      setSeverity("warning");
-      navigate(Path.Profile);
-    }
-  }, [navigate]);
 
   useEffect(() => {
     if (iframeRef.current) {
@@ -37,31 +25,29 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
     }
   }, [url]);
 
-  // useEffect(() => {
-  //   const keydownEvent = (e: KeyboardEvent) => {
-  //     if (e.key === "Escape") {
-  //       navigate(Path.Home);
-  //     }
-  //   };
-  //   document.addEventListener("keydown", keydownEvent);
-  //   return () => {
-  //     document.removeEventListener("keydown", keydownEvent);
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  // ESC按键检测
+  useEffect(() => {
+    const keydownEvent = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        navigate(Path.Home);
+      }
+    };
+    document.addEventListener("keydown", keydownEvent);
+    return () => {
+      document.removeEventListener("keydown", keydownEvent);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
-    // const loggedIn = document.cookie.includes("loggedIn=true");
-    const loggedIn = getCookie("loggedIn") || false;
-    console.log(loggedIn);
-
-    if (loggedIn) {
-      // 登录成功
-      console.log("登录成功");
-    } else {
-      console.log("未登录");
+    const loginState = isUserLogin();
+    console.log("当前登陆状态：", loginState);
+    if (loginState) {
+      setMessage("您已登录，无需重复登录");
+      setSeverity("warning");
+      navigate(Path.Profile);
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     // 定时器 ID
@@ -70,16 +56,18 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
     const checkLoginCookie = () => {
       console.log("开始轮询登录cookie");
       // const loggedIn = document.cookie.includes("loggedIn=true");
-      const appId = getCookie("appid") || "1000";
       const loggedIn = getCookie("loggedIn") || false;
-      const loginKey = getCookie("login_key") || "";
-      const userFid = getCookie("user_fid") || "";
-      const userName = getCookie("user_name") || "未登录";
-      const userEmail = getCookie("user_email") || "未设置";
 
+      // 登录成功
       if (loggedIn) {
-        // 登录成功
         console.log("登录成功");
+
+        const appId = getCookie("appid") || "1000";
+        const loginKey = getCookie("login_key") || "";
+        const userFid = getCookie("user_fid") || "";
+        const userName = getCookie("user_name") || "未登录";
+        const userEmail = getCookie("user_email") || "未设置";
+
         localStorage.setItem("loggedIn", "true");
         localStorage.setItem("appid", appId);
         localStorage.setItem("login_key", loginKey);
@@ -87,10 +75,11 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
         localStorage.setItem("user_name", userName);
         localStorage.setItem("user_email", userEmail);
         window.dispatchEvent(new Event("customEvent"));
-        navigate(Path.Profile);
+
         if (intervalId) {
           clearInterval(intervalId); // 取消轮询
         }
+        navigate(Path.Profile);
       }
     };
 

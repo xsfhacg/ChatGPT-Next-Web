@@ -1,0 +1,24 @@
+# 中国大陆用户，可以使用本项目自带的代理进行开发，你也可以自由选择其他代理地址
+# BASE_URL=https://nb.nextweb.fun/api/proxy
+# OPENAI_API_KEY=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
+
+
+# Next API
+# BASE_URL=https://api.nextweb.fun/openai
+BASE_URL=https://openai.nextweb.fun
+OPENAI_API_KEY=ak-pOxFxgEphqZY2ZhTtsBiKaVxF820mRdMEgAOFRjnzM9vta7B
+
+
+# 禁用GPT4.0
+DISABLE_GPT4=1
+
+
+# 禁用自定义KEY
+HIDE_USER_API_KEY=1
+
+
+# 关闭余额查询
+HIDE_BALANCE_QUERY=1
+
+
+# CODE=admin777

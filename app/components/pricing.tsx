@@ -253,28 +253,25 @@ export function Pricing() {
     //   }
     // } else {
     try {
-      const response = await axios.get(
-        `http://www.orangeui.cn:10030/shopcenter/take_order`,
-        {
-          params: {
-            appid: appid,
-            user_fid: user_id,
-            key: 123456,
-            deliver_type: "express",
-            recv_longitude: 0,
-            recv_latitude: 0,
-            recv_sex: 0,
-            is_book: 0,
-            tableware_quantity: 0,
-            is_used_score: 0,
-            used_score: 0,
-            is_only_pay_delivery_fee: 0,
-            want_arrive_time: getTime(),
-            shop_fid: shopFid,
-            shop_goods_list_json: JSON.stringify(goodsListJson),
-          },
+      const response = await axios.get(`/save_api/shopcenter/take_order`, {
+        params: {
+          appid: appid,
+          user_fid: user_id,
+          key: 123456,
+          deliver_type: "express",
+          recv_longitude: 0,
+          recv_latitude: 0,
+          recv_sex: 0,
+          is_book: 0,
+          tableware_quantity: 0,
+          is_used_score: 0,
+          used_score: 0,
+          is_only_pay_delivery_fee: 0,
+          want_arrive_time: getTime(),
+          shop_fid: shopFid,
+          shop_goods_list_json: JSON.stringify(goodsListJson),
         },
-      );
+      });
       // console.log(response.data);
       if (response.data.Code === 200) {
         const orderId = response.data.Data.OrderInfo[0].fid;
@@ -284,7 +281,7 @@ export function Pricing() {
         if (orderId) {
           try {
             const getpaymentimg = await axios.get(
-              `http://www.orangeui.cn:10030/paycenter/prepare_pay_order`,
+              `/save_api/paycenter/prepare_pay_order`,
               {
                 params: {
                   appid: appid,

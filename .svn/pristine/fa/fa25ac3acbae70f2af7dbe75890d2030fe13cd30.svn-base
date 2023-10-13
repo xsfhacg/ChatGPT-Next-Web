@@ -1,0 +1,47 @@
+/* TopNavigation.css */
+.top-navigation {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    justify-content: center;
+    // background-color: #f8f9fa;
+    padding: 1rem 0;
+    z-index: 100;
+}
+  
+.top-navigation-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+  
+.top-navigation-list-item {
+    margin: 0 1rem;
+}
+  
+.top-navigation-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    transition: color 0.3s;
+
+    position: relative; /* 添加相对定位，以便在::after伪元素中使用绝对定位 */
+}
+  
+.top-navigation-link:hover,
+.top-navigation-link-active {
+    color: #007bff;
+}
+.top-navigation-link-active::after {
+    content: ''; /* 设置内容为空，以便显示伪元素 */
+    position: absolute; /* 使用绝对定位来定位下划线 */
+    bottom: -.5rem; /* 设置上边距为1rem */
+    left: 0; /* 左边距为0，使下划线与链接文本对齐 */
+    width: 100%; /* 设置下划线宽度与链接文本相同 */
+    height: 2px; /* 设置下划线厚度为2px */
+    background-color: #007bff; /* 设置下划线颜色 */
+}

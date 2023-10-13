@@ -1,0 +1,21 @@
+.button-login {
+    position: absolute;
+    top: .7rem;
+    background-color: #e7f8ff;
+    border: var(--border-in-light);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.button-login:hover {
+    background-color: #d0e8ff;
+}
+
+.button-login:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+  

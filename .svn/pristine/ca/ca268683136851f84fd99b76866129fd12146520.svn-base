@@ -1,0 +1,33 @@
+
+# Your openai api key. (required)
+OPENAI_API_KEY=sk-xxxx
+
+# Access passsword, separated by comma. (optional)
+CODE=your-password
+
+# You can start service behind a proxy
+PROXY_URL=http://localhost:7890
+
+# Override openai api request base url. (optional)
+# Default: https://api.openai.com
+# Examples: http://your-openai-proxy.com
+BASE_URL=
+
+# Specify OpenAI organization ID.(optional)
+# Default: Empty
+OPENAI_ORG_ID=
+
+# (optional)
+# Default: Empty
+# 如果不希望用户输入自己的API密钥，请将此值设置为1。
+HIDE_USER_API_KEY=
+
+# (optional)
+# Default: Empty
+# 如果不希望用户使用GPT-4，请将此值设置为1。
+DISABLE_GPT4=
+
+# (optional)
+# Default: Empty
+# 如果不希望用户查询余额，请将此值设置为1。
+HIDE_BALANCE_QUERY=

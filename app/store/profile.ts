@@ -65,9 +65,7 @@ export const useProfileStore = create<ProfileStore>()(
         // const BASE_URL = process.env.BASE_URL;
         // const mode = process.env.BUILD_MODE;
         // let requestUrl = mode === "export" ? BASE_URL + url : "/api" + url;
-        let requestUrl =
-          "http://www.orangeui.cn:10030/usercenter/get_user_info?&is_need_chatgpt_use_status=1&key=" +
-          token;
+        let requestUrl = `/save_api/usercenter/get_user_info?&is_need_chatgpt_use_status=1&key=${token}`;
         return fetch(requestUrl, {
           method: "get",
           // headers: {
