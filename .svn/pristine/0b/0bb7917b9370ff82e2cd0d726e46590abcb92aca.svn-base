@@ -1,6 +1,6 @@
 // import { create } from "zustand";
 // import { persist } from "zustand/middleware";
-import axios from "axios";
+import axios from 'axios';
 import { formatTimestamp, trimTopic } from "../utils";
 import Locale, { getLang } from "../locales";
 import { showToast } from "../components/ui-lib";
@@ -36,7 +36,7 @@ export async function getBrowserFingerprint(): Promise<string> {
 // 保存数据
 export async function saveChatMessage(data: any): Promise<void> {
   const loggedIn = localStorage.getItem("loggedIn") || "false";
-  const login_key = localStorage.getItem("login_key") || "";
+  const login_key = localStorage.getItem("login_key") || '';
   const freeChatState = localStorage.getItem("freeChatExhausted") || "false";
   const url = `/save_api/aicenter/save_chat_message?key=${login_key}`;
   // const url = `http://www.orangeui.cn:10030/aicenter/save_chat_message?key=${login_key}`;
