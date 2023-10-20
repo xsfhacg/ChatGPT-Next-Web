@@ -417,6 +417,7 @@ const cn = {
 
   LoginRegister: {
     Title: "登录&注册",
+    BintTitle: "绑定",
     SubTitle: "登录后可跟AI交流",
     Username: {
       Title: "用户名或邮箱",
@@ -446,7 +447,9 @@ const cn = {
     Title: "个人中心",
     SubTitle: "个人中心",
     Username: "账号",
+    Phone: "手机",
     Email: "邮箱",
+    ToBind: "去绑定",
     Tokens: {
       Title: "tokens套餐余量",
       SubTitle: "剩余tokens数量",

@@ -19,11 +19,22 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  const operateType = localStorage.getItem("operate_type") || "login";
+  const userFid = localStorage.getItem("user_fid");
+  const loginKey = localStorage.getItem("login_key");
+
+  // 检测当前操作类型是否为单独的绑定手机号
   useEffect(() => {
+    const updatedUrl =
+      operateType === "login"
+        ? url
+        : `${url}&operate_type=${operateType}&user_fid=${userFid}&login_key=${loginKey}`;
+    console.log("login-url: ", updatedUrl);
+
     if (iframeRef.current) {
-      iframeRef.current.src = url;
+      iframeRef.current.src = updatedUrl;
     }
-  }, [url]);
+  }, [loginKey, operateType, url, userFid]);
 
   // ESC按键检测
   useEffect(() => {
@@ -39,40 +50,44 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const loginState = isUserLogin();
-    console.log("当前登陆状态：", loginState);
-    if (loginState) {
-      setMessage("您已登录，无需重复登录");
-      setSeverity("warning");
-      navigate(Path.Profile);
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const loginState = isUserLogin();
+  //   console.log("当前登陆状态：", loginState);
+  //   if (loginState) {
+  //     setMessage("您已登录，无需重复登录");
+  //     setSeverity("warning");
+  //     navigate(Path.Profile);
+  //     return;
+  //   }
+  // }, [navigate]);
 
   useEffect(() => {
     // 定时器 ID
     let intervalId: NodeJS.Timeout;
 
+    // 检查登录信息
     const checkLoginCookie = () => {
-      console.log("开始轮询登录cookie");
-      // const loggedIn = document.cookie.includes("loggedIn=true");
-      const loggedIn = getCookie("loggedIn") || false;
+      console.log("轮询登录cookie");
+      const loggedIn = document.cookie.includes("loggedIn=true");
+      // console.log('loggedIn: ', loggedIn, typeof(loggedIn));
 
       // 登录成功
       if (loggedIn) {
         console.log("登录成功");
 
         const appId = getCookie("appid") || "1000";
-        const loginKey = getCookie("login_key") || "";
         const userFid = getCookie("user_fid") || "";
-        const userName = getCookie("user_name") || "未登录";
+        const loginKey = getCookie("login_key") || "";
+        const userName = getCookie("user_name") || "获取异常";
+        const userPhone = getCookie("user_phone") || "未设置";
         const userEmail = getCookie("user_email") || "未设置";
 
         localStorage.setItem("loggedIn", "true");
         localStorage.setItem("appid", appId);
-        localStorage.setItem("login_key", loginKey);
         localStorage.setItem("user_fid", userFid);
+        localStorage.setItem("login_key", loginKey);
         localStorage.setItem("user_name", userName);
+        localStorage.setItem("user_phone", userPhone);
         localStorage.setItem("user_email", userEmail);
         window.dispatchEvent(new Event("customEvent"));
 
@@ -83,29 +98,58 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
       }
     };
 
-    // 页面加载时立即执行一次
-    checkLoginCookie();
+    // 检查绑定手机号
+    const checkBindPhoneCookie = () => {
+      console.log("轮询绑定手机号cookie");
+      const bindPhone = getCookie("user_phone") || "";
+      // console.log('bindPhone: ', bindPhone);
 
-    // 定时执行检查登录cookie的逻辑
-    const startPolling = () => {
-      intervalId = setInterval(checkLoginCookie, 1000); // 每隔 1 秒执行一次
+      if (bindPhone.length == 11) {
+        console.log("绑定成功");
+        localStorage.setItem("user_phone", bindPhone);
+
+        if (intervalId) {
+          clearInterval(intervalId); // 取消轮询
+        }
+        navigate(Path.Profile);
+      }
     };
+
+    // 如果是登录页面加载时立即执行一次
+    if (operateType === "login") {
+      checkLoginCookie();
+    }
+
+    // 定时执行检查cookie的逻辑
+    const startPolling = () => {
+      console.log("启动定时轮询");
+      // intervalId = setInterval(checkLoginCookie, 1000); // 每隔 1 秒执行一次
+      intervalId = setInterval(() => {
+        operateType === "login" ? checkLoginCookie() : checkBindPhoneCookie();
+      }, 1000);
+    };
+
     // 启动定时轮询
     startPolling();
 
     // 在组件卸载时清除定时器
     return () => {
-      console.log("取消登录cookie轮询");
+      console.log("取消cookie轮询");
       clearInterval(intervalId);
     };
-  }, [navigate]);
+  }, [navigate, operateType]);
 
   return (
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">
-            {Locale.LoginRegister.Title}
+            {/* {Locale.LoginRegister.Title} */}
+            {localStorage.getItem("operate_type") === "bind_phone" ? (
+              <span>{Locale.LoginRegister.BintTitle}</span>
+            ) : (
+              <span>{Locale.LoginRegister.Title}</span>
+            )}
           </div>
           <div className="window-header-sub-title">
             {/* {Locale.LoginRegister.SubTitle} */}

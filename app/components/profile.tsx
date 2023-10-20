@@ -77,10 +77,12 @@ export function Profile() {
     clearAllCookie();
     localStorage.setItem("loggedIn", "false");
     localStorage.removeItem("appid");
-    localStorage.removeItem("login_key");
     localStorage.removeItem("user_fid");
+    localStorage.removeItem("login_key");
     localStorage.removeItem("user_name");
+    localStorage.removeItem("user_phone");
     localStorage.removeItem("user_email");
+    localStorage.removeItem("operate_type");
     window.dispatchEvent(new Event("customEvent"));
 
     setTimeout(() => {
@@ -165,6 +167,22 @@ export function Profile() {
           {/* 用户名 */}
           <ListItem title={Locale.Profile.Username}>
             <span>{localStorage.getItem("user_name")}</span>
+          </ListItem>
+
+          {/* 手机号 */}
+          <ListItem title={Locale.Profile.Phone}>
+            {localStorage.getItem("user_phone") !== "未设置" ? (
+              <span>{localStorage.getItem("user_phone")}</span>
+            ) : (
+              <IconButton
+                text={Locale.Profile.ToBind}
+                type="primary"
+                onClick={() => {
+                  localStorage.setItem("operate_type", "bind_phone");
+                  navigate(Path.LoginRegister);
+                }}
+              />
+            )}
           </ListItem>
 
           {/* 邮箱 */}

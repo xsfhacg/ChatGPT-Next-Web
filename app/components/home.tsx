@@ -198,8 +198,11 @@ function Screen() {
   //   window.location.href = url;
   // };
 
-  const callbackUrl = encodeURIComponent(window.location.href);
-  const loginUrl = `https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api&callback_url=${callbackUrl}`;
+  // const callbackUrl = encodeURIComponent(window.location.href);
+  // const loginUrl = `https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api&callback_url=${callbackUrl}`;
+
+  const loginUrl =
+    "https://www.orangeui.cn/login.html?appid=1000&api_name=delphi_area_web_api";
 
   useEffect(() => {
     loadAsyncGoogleFont();
