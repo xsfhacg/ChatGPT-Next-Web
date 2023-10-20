@@ -417,8 +417,7 @@ const cn = {
 
   LoginRegister: {
     Title: "登录&注册",
-    SubTitle: "登录后可跟AI交流",
-    BindTitle: "绑定",
+    SubTitle: "绑定",
     Username: {
       Title: "用户名或邮箱",
       SubTitle: "",

@@ -146,7 +146,7 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
           <div className="window-header-main-title">
             {/* {Locale.LoginRegister.Title} */}
             {localStorage.getItem("operate_type") === "bind_phone" ? (
-              <span>{Locale.LoginRegister.BindTitle}</span>
+              <span>{Locale.LoginRegister.SubTitle}</span>
             ) : (
               <span>{Locale.LoginRegister.Title}</span>
             )}
