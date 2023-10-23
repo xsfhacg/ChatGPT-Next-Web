@@ -133,7 +133,7 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
         }
         navigate(Path.Profile);
       }
-    };
+    }; 
 
     // 如果是登录页面加载时立即执行一次
     if (operateType === "login") {
@@ -146,13 +146,10 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
       // intervalId = setInterval(checkLoginCookie, 1000); // 每隔 1 秒执行一次
       intervalId = setInterval(() => {
         // operateType === "login" ? checkLoginCookie() : checkBindPhoneCookie();
-        operateType === "login"
-          ? checkLoginCookie()
-          : operateType === "bind_phone"
-          ? checkBindPhoneCookie()
-          : operateType === "bind_wx"
-          ? checkBindWxCookie()
-          : console.log("当前轮询类型未定义：", operateType);
+        operateType === "login" ? checkLoginCookie() :
+        operateType === "bind_phone" ? checkBindPhoneCookie() :
+        operateType === "bind_wx" ? checkBindWxCookie() : console.log('当前轮询类型未定义：', operateType);
+
       }, 1000);
     };
 
