@@ -204,8 +204,10 @@ export function SideBar(props: { className?: string }) {
         <div className={styles["sidebar-title"]} data-tauri-drag-region>
           OrangeUI — ChatGPT
         </div>
-        <div className={styles["sidebar-sub-title"]}>
-          构建属于你的人工智能助手。
+        <div className={styles["sidebar-sub-title"]} style={{ color: "red" }}>
+          Delphi相关问题可进QQ群交流：10900297
+          <br />
+          SD绘图：/sd + 空格 + 绘图提示词（推荐英文）
         </div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
           <ChatGptIcon />

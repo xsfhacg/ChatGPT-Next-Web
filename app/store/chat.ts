@@ -4,7 +4,13 @@ import axios from "axios";
 import { formatTimestamp, trimTopic } from "../utils";
 import Locale, { getLang } from "../locales";
 import { showToast } from "../components/ui-lib";
-import { ModelConfig, ModelType, useAppConfig } from "./config";
+import {
+  ModelConfig,
+  ModelType,
+  DrawModelType,
+  DrawModelSize,
+  useAppConfig,
+} from "./config";
 import { createEmptyMask, Mask } from "./mask";
 import {
   DEFAULT_INPUT_TEMPLATE,
@@ -20,6 +26,9 @@ import { estimateTokenLength } from "../utils/token";
 import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 import { isAdmin } from "../api/restapi/authuser";
+// import { NovitaSDK } from "novita-sdk";
+import { baiduTranslate } from "../api/restapi/baidutranslate";
+import { generateImage } from "../api/restapi/stablediffusion";
 
 // 创建浏览器指纹
 let globalFingerprint: string | null = null;
@@ -86,6 +95,9 @@ export type ChatMessage = RequestMessage & {
   isError?: boolean;
   id: string;
   model?: ModelType;
+  drawModel?: DrawModelType;
+  drawSize?: DrawModelSize;
+  attr?: any;
 };
 
 export function createMessage(override: Partial<ChatMessage>): ChatMessage {
@@ -338,12 +350,21 @@ export const useChatStore = createPersistStore(
         // 保存问题JSON
         const user_id = await getBrowserFingerprint();
         // const user_id = localStorage.getItem("user_fid");
+        let nowModel = session.mask.modelConfig.model;
+        if (
+          userContent.trim().toLowerCase().startsWith("/sd") ||
+          userContent.trim().toUpperCase().startsWith("/SD")
+        ) {
+          nowModel = "stablediffusion";
+        }
         let requestObj = {
           temp_user_id: user_id,
           sender_temp_user_id: user_id,
           session_id: session.id,
           session_topic: session.topic,
-          ai_model: session.mask.modelConfig.model,
+          ai_model: nowModel,
+          draw_model: session.mask.modelConfig.draw_model,
+          draw_size: session.mask.modelConfig.draw_size,
           message: userContent.trimStart(),
           createtime: formatTimestamp(Date.now()),
         };
@@ -359,6 +380,8 @@ export const useChatStore = createPersistStore(
           role: "assistant",
           streaming: true,
           model: modelConfig.model,
+          drawModel: modelConfig.draw_model,
+          drawSize: modelConfig.draw_size,
         });
 
         // get recent messages
@@ -378,57 +401,113 @@ export const useChatStore = createPersistStore(
           ]);
         });
 
-        // make request
-        api.llm.chat({
-          messages: sendMessages,
-          config: { ...modelConfig, stream: true },
-          onUpdate(message) {
-            botMessage.streaming = true;
-            if (message) {
-              botMessage.content = message;
-            }
-            get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
-            });
-          },
-          onFinish(message) {
-            botMessage.streaming = false;
-            if (message) {
-              botMessage.content = message;
-              get().onNewMessage(botMessage);
-            }
-            ChatControllerPool.remove(session.id, botMessage.id);
-          },
-          onError(error) {
-            const isAborted = error.message.includes("aborted");
-            botMessage.content +=
-              "\n\n" +
-              prettyObject({
-                error: true,
-                message: error.message,
-              });
-            botMessage.streaming = false;
-            userMessage.isError = !isAborted;
-            botMessage.isError = !isAborted;
-            get().updateCurrentSession((session) => {
-              session.messages = session.messages.concat();
-            });
-            ChatControllerPool.remove(
-              session.id,
-              botMessage.id ?? messageIndex,
-            );
+        const chineseRegExp = /[\u4e00-\u9fa5]/;
 
-            console.error("[Chat] failed ", error);
-          },
-          onController(controller) {
-            // collect controller for stop/retry
-            ChatControllerPool.addController(
-              session.id,
-              botMessage.id ?? messageIndex,
-              controller,
-            );
-          },
-        });
+        // 提问前判断是否为画图
+        if (
+          content.startsWith("画一") ||
+          content.toLowerCase().startsWith("/sd") ||
+          content.toUpperCase().startsWith("/SD")
+        ) {
+          botMessage.model = "stablediffusion";
+          const startFn = async () => {
+            let prompt;
+            if (content.startsWith("画一")) {
+              prompt = content.substring(1).trim();
+            } else {
+              prompt = content.substring(3).trim();
+            }
+            console.log(botMessage.drawModel, botMessage.drawSize, prompt);
+
+            try {
+              // 先判断绘图提示词是否为中文，是的话需要翻译
+              if (chineseRegExp.test(prompt)) {
+                console.log("检测到中文提示词，开始翻译");
+                let translateResult = await baiduTranslate(prompt);
+                if (translateResult.success) {
+                  console.log("绘图提示词翻译成功：", translateResult.message);
+                  prompt = translateResult.message.toLowerCase();
+                } else {
+                  throw new Error(translateResult.message);
+                }
+              }
+              // 然后调用绘图接口并获取结果
+              const result = await generateImage(
+                prompt,
+                botMessage.drawModel,
+                botMessage.drawSize,
+              );
+              console.log(
+                result.message,
+                result.success ? result.img_url : result.message,
+              );
+              botMessage.content = result.success
+                ? `![(seed: ${result.seed})${prompt}](${result.img_url})`
+                : result.message;
+            } catch (error) {
+              console.error(error);
+              botMessage.content = (error as Error).message;
+            }
+            // 【此处流式输出位置请勿改动！！！】
+            botMessage.streaming = false;
+          };
+
+          await startFn();
+          get().onNewMessage(botMessage);
+          set(() => ({}));
+        } else {
+          // make request
+          api.llm.chat({
+            messages: sendMessages,
+            config: { ...modelConfig, stream: true },
+            onUpdate(message) {
+              botMessage.streaming = true;
+              if (message) {
+                botMessage.content = message;
+              }
+              get().updateCurrentSession((session) => {
+                session.messages = session.messages.concat();
+              });
+            },
+            onFinish(message) {
+              botMessage.streaming = false;
+              if (message) {
+                botMessage.content = message;
+                get().onNewMessage(botMessage);
+              }
+              ChatControllerPool.remove(session.id, botMessage.id);
+            },
+            onError(error) {
+              const isAborted = error.message.includes("aborted");
+              botMessage.content +=
+                "\n\n" +
+                prettyObject({
+                  error: true,
+                  message: error.message,
+                });
+              botMessage.streaming = false;
+              userMessage.isError = !isAborted;
+              botMessage.isError = !isAborted;
+              get().updateCurrentSession((session) => {
+                session.messages = session.messages.concat();
+              });
+              ChatControllerPool.remove(
+                session.id,
+                botMessage.id ?? messageIndex,
+              );
+
+              console.error("[Chat] failed ", error);
+            },
+            onController(controller) {
+              // collect controller for stop/retry
+              ChatControllerPool.addController(
+                session.id,
+                botMessage.id ?? messageIndex,
+                controller,
+              );
+            },
+          });
+        }
       },
 
       getMemoryPrompt() {
@@ -639,6 +718,8 @@ export const useChatStore = createPersistStore(
             session_id: session.id,
             session_topic: session.topic,
             ai_model: messages.slice(-1)[0].model,
+            draw_model: session.mask.modelConfig.draw_model,
+            draw_size: session.mask.modelConfig.draw_size,
             message: messages.slice(-1)[0].content,
             createtime: formatTimestamp(Date.now()),
           };

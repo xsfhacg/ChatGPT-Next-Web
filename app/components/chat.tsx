@@ -36,6 +36,9 @@ import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
 import { isAdmin } from "../api/restapi/authuser";
 
+import DrawIcon from "../icons/draw.svg";
+import SizeIcon from "../icons/size.svg";
+
 // import UserIcon from "../icons/user.svg";
 // import CartIcon from "../icons/cart-outline.svg";
 
@@ -50,6 +53,8 @@ import {
   useAppConfig,
   DEFAULT_TOPIC,
   ModelType,
+  DrawModelType,
+  DrawModelSize,
   useProfileStore,
 } from "../store";
 
@@ -96,6 +101,8 @@ import { getClientConfig } from "../config/client";
 import { useAllModels } from "../utils/hooks";
 
 import MySnackbar from "./mysnackbar";
+
+import { DEFAULT_DRAW_MODELS, DEFAULT_DRAW_SIZES } from "../constant";
 
 const Markdown = dynamic(async () => (await import("./markdown")).Markdown, {
   loading: () => <LoadingIcon />,
@@ -436,18 +443,39 @@ export function ChatActions(props: {
   const couldStop = ChatControllerPool.hasPending();
   const stopAll = () => ChatControllerPool.stopAll();
 
-  // switch model
+  // 聊天模型
   const currentModel = chatStore.currentSession().mask.modelConfig.model;
   const allModels = useAllModels();
   const models = useMemo(
     () => allModels.filter((m) => m.available),
     [allModels],
   );
+  // console.log('allModels',allModels);
   const [showModelSelector, setShowModelSelector] = useState(false);
 
+  // 绘图模型
+  const currentDrawModel =
+    chatStore.currentSession().mask.modelConfig.draw_model;
+  const allDrawModels = DEFAULT_DRAW_MODELS;
+  const drawModels = useMemo(
+    () => allDrawModels.filter((m) => m.available),
+    [allDrawModels],
+  );
+  // console.log('allDrawModels',allDrawModels);
+  const [showDrawModelSelector, setShowDrawModelSelector] = useState(false);
+
+  // 绘图尺寸
+  const currentDrawSize = chatStore.currentSession().mask.modelConfig.draw_size;
+  const allDrawSizes = DEFAULT_DRAW_SIZES;
+  const drawSizes = useMemo(
+    () => allDrawSizes.filter((m) => m.available),
+    [allDrawSizes],
+  );
+  // console.log('allDrawSizes',allDrawSizes);
+  const [showDrawSizeSelector, setShowDrawSizeSelector] = useState(false);
+
   useEffect(() => {
-    // if current model is not available
-    // switch to first available model
+    // 如果当前模型不可用，则切换到第一个可用模型
     const isUnavaliableModel = !models.some((m) => m.name === currentModel);
     if (isUnavaliableModel && models.length > 0) {
       const nextModel = models[0].name as ModelType;
@@ -456,7 +484,39 @@ export function ChatActions(props: {
       );
       showToast(nextModel);
     }
-  }, [chatStore, currentModel, models]);
+
+    // 切换到第一个可用的绘图模型
+    const isUnavaliableDrawModel = !drawModels.some(
+      (m) => m.name === currentDrawModel,
+    );
+    if (isUnavaliableDrawModel && drawModels.length > 0) {
+      const nextDrawModel = drawModels[0].name as DrawModelType;
+      chatStore.updateCurrentSession(
+        (session) => (session.mask.modelConfig.draw_model = nextDrawModel),
+      );
+      showToast(nextDrawModel);
+    }
+
+    // 切换到第一个可用的绘图尺寸
+    const isUnavaliableDrawSize = !drawSizes.some(
+      (m) => m.name === currentDrawSize,
+    );
+    if (isUnavaliableDrawSize && drawSizes.length > 0) {
+      const nextDrawSize = drawSizes[0].name as DrawModelSize;
+      chatStore.updateCurrentSession(
+        (session) => (session.mask.modelConfig.draw_size = nextDrawSize),
+      );
+      showToast(nextDrawSize);
+    }
+  }, [
+    chatStore,
+    currentModel,
+    models,
+    currentDrawModel,
+    drawModels,
+    currentDrawSize,
+    drawSizes,
+  ]);
 
   return (
     <div className={styles["chat-input-actions"]}>
@@ -474,6 +534,7 @@ export function ChatActions(props: {
           icon={<BottomIcon />}
         />
       )}
+
       {/* 输入框上方————设置按钮 */}
       {props.hitBottom && (
         <ChatAction
@@ -538,7 +599,6 @@ export function ChatActions(props: {
         text={currentModel}
         icon={<RobotIcon />}
       /> */}
-
       {showModelSelector && (
         <Selector
           defaultSelectedValue={currentModel}
@@ -551,6 +611,58 @@ export function ChatActions(props: {
             if (s.length === 0) return;
             chatStore.updateCurrentSession((session) => {
               session.mask.modelConfig.model = s[0] as ModelType;
+              session.mask.syncGlobalConfig = false;
+            });
+            showToast(s[0]);
+          }}
+        />
+      )}
+
+      {/* 输入框上方的绘图模型切换按钮 */}
+      <ChatAction
+        onClick={() => setShowDrawModelSelector(true)}
+        text={currentDrawModel}
+        icon={<DrawIcon />}
+      />
+      {showDrawModelSelector && (
+        <Selector
+          defaultSelectedValue={currentDrawModel}
+          items={drawModels.map((m) => ({
+            title: m.name,
+            value: m.name,
+          }))}
+          onClose={() => setShowDrawModelSelector(false)}
+          onSelection={(s) => {
+            // console.log(s)
+            if (s.length === 0) return;
+            chatStore.updateCurrentSession((session) => {
+              session.mask.modelConfig.draw_model = s[0] as DrawModelType;
+              session.mask.syncGlobalConfig = false;
+            });
+            showToast(s[0]);
+          }}
+        />
+      )}
+
+      {/* 输入框上方的绘图尺寸切换按钮 */}
+      <ChatAction
+        onClick={() => setShowDrawSizeSelector(true)}
+        text={currentDrawSize}
+        icon={<SizeIcon />}
+      />
+      {showDrawSizeSelector && (
+        <Selector
+          defaultSelectedValue={currentDrawSize}
+          items={drawSizes.map((m) => ({
+            title: m.name,
+            value: m.name,
+          }))}
+          onClose={() => setShowDrawSizeSelector(false)}
+          onSelection={(s) => {
+            // console.log(s)
+            if (s.length === 0) return;
+            chatStore.updateCurrentSession((session) => {
+              session.mask.modelConfig.draw_size = s[0] as DrawModelSize;
               session.mask.syncGlobalConfig = false;
             });
             showToast(s[0]);
@@ -817,7 +929,13 @@ function _Chat() {
       matchCommand.invoke();
       return;
     }
-    setIsLoading(true);
+    // 不是画图的情况才设置为加载中
+    if (
+      !userInput.trim().toLocaleLowerCase().startsWith("/sd") &&
+      !userInput.trim().toLocaleLowerCase().startsWith("画一")
+    ) {
+      setIsLoading(true);
+    }
     chatStore.onUserInput(userInput).then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
@@ -971,7 +1089,13 @@ function _Chat() {
     deleteMessage(botMessage?.id);
 
     // resend the message
-    setIsLoading(true);
+    // 不是画图的情况才设置为加载中
+    if (
+      !userMessage.content.trim().toLocaleLowerCase().startsWith("/sd") &&
+      !userMessage.content.trim().toLocaleLowerCase().startsWith("画一")
+    ) {
+      setIsLoading(true);
+    }
     chatStore.onUserInput(userMessage.content).then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
@@ -1005,36 +1129,39 @@ function _Chat() {
     context.push(copiedHello);
   }
 
-  // preview messages
+  // preview messages 预览消息
   const renderMessages = useMemo(() => {
-    return context
-      .concat(session.messages as RenderMessage[])
-      .concat(
-        isLoading
-          ? [
-              {
-                ...createMessage({
-                  role: "assistant",
-                  content: "……",
-                }),
-                preview: true,
-              },
-            ]
-          : [],
-      )
-      .concat(
-        userInput.length > 0 && config.sendPreviewBubble
-          ? [
-              {
-                ...createMessage({
-                  role: "user",
-                  content: userInput,
-                }),
-                preview: true,
-              },
-            ]
-          : [],
-      );
+    return (
+      context
+        .concat(session.messages as RenderMessage[])
+        .concat(
+          isLoading
+            ? [
+                {
+                  ...createMessage({
+                    role: "assistant",
+                    content: "……",
+                  }),
+                  preview: true,
+                },
+              ]
+            : [],
+        )
+        // 输入字符大于0并且勾选了预览气泡
+        .concat(
+          userInput.length > 0 && config.sendPreviewBubble
+            ? [
+                {
+                  ...createMessage({
+                    role: "user",
+                    content: userInput,
+                  }),
+                  preview: true,
+                },
+              ]
+            : [],
+        )
+    );
   }, [
     config.sendPreviewBubble,
     context,
@@ -1390,6 +1517,24 @@ function _Chat() {
                       defaultShow={i >= messages.length - 6}
                     />
                   </div>
+
+                  {/* 在图片底部显示图片链接 */}
+                  {/* {!isUser &&
+                    message.model == "stablediffusion" &&
+                    message.attr?.finished &&
+                    message.attr?.imgUrl && (
+                      <div
+                          className={[
+                              styles["chat-message-actions"],
+                              styles["column-flex"],
+                          ].join(" ")}
+                      >
+                        <div style={{marginTop: "6px"}} >
+                          {message.attr.imgUrl}
+                        </div>
+                      </div>
+                    )
+                  } */}
 
                   <div className={styles["chat-message-action-date"]}>
                     {isContext

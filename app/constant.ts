@@ -158,6 +158,96 @@ export const DEFAULT_MODELS = [
     name: "gpt-3.5-turbo-16k-0613",
     available: true,
   },
+  {
+    name: "stablediffusion",
+    available: false,
+  },
+] as const;
+
+export const DEFAULT_DRAW_MODELS = [
+  {
+    name: "默认模型",
+    value: "sdXL_v10VAEFix_92696.safetensors",
+    sampler: "Euler",
+    negative_prompt:
+      "(deformed iris, deformed pupils), text, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, (extra fingers), (mutated hands), poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, (fused fingers), (too many fingers), long neck, camera",
+    width: 512,
+    height: 768,
+    steps: 50,
+    cfg_scale: 8,
+    available: true,
+  },
+  {
+    name: "写实模型",
+    value: "chilloutmix_NiPrunedFp32Fix.safetensors",
+    sampler: "DPM++ SDE Karras",
+    negative_prompt:
+      "illustration, 3d, sepia, painting, cartoons, sketch, (worst quality:2), (low quality:2), (normal quality:2), lowres, bad anatomy, bad hands, normal quality, ((monochrome)), ((grayscale:1.2)), futanari, full-package_futanari, penis_from_girl, newhalf, collapsed eyeshadow, multiple eyebrows, vaginas in breasts,holes on breasts, fleckles, stretched nipples, gigantic penis, nipples on buttocks, analog, analogphoto, signatre, logo,2 faces",
+    width: 512,
+    height: 768,
+    steps: 33,
+    cfg_scale: 7,
+    available: true,
+  },
+  {
+    name: "国风模型",
+    value: "3Guofeng3_v34_74831.safetensors",
+    sampler: "Euler a",
+    negative_prompt:
+      "(((simple background))),monochrome ,lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, lowres, bad anatomy, bad hands, text, error, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, ugly,pregnant,vore,duplicate,morbid,mut ilated,tran nsexual, hermaphrodite,long neck,mutated hands,poorly drawn hands,poorly drawn face,mutation,deformed,blurry,bad anatomy,bad proportions,malformed limbs,extra limbs,cloned face,disfigured,gross proportions, (((missing arms))),(((missing legs))), (((extra arms))),(((extra legs))),pubic hair, plump,bad legs,error legs,username,blurry,bad feet",
+    width: 640,
+    height: 1024,
+    steps: 30,
+    cfg_scale: 7,
+    available: true,
+  },
+  {
+    name: "动漫模型",
+    value: "meinapastel_v6Pastel_76316.safetensors",
+    sampler: "DPM++ 2M Karras",
+    negative_prompt:
+      "(worst quality, low quality:1.4), monochrome, zombie, (interlocked fingers)",
+    width: 512,
+    height: 1024,
+    steps: 20,
+    cfg_scale: 7,
+    available: true,
+  },
+  {
+    name: "LOGO模型",
+    value: "MAGIFACTORYTShirt_magifactoryTShirtModel_7624.safetensors",
+    sampler: "DPM++ 2S a Karras",
+    negative_prompt:
+      "(woman:0.5), badly drawn, noisy, noise, blurred, ugly, cropped, out of frame, (double:1.4), (repeated:1.4), (repeating:1.2), signature, (text:1.2), (font:1.2), watermark, (white background:1.2), clothing structure",
+    width: 512,
+    height: 512,
+    steps: 15,
+    cfg_scale: 7,
+    available: true,
+  },
+] as const;
+
+export const DEFAULT_DRAW_SIZES = [
+  {
+    name: "适配模型(推荐)",
+    available: true,
+  },
+  {
+    name: "512*512",
+    available: true,
+  },
+  {
+    name: "512*768",
+    available: true,
+  },
+  {
+    name: "768*768",
+    available: true,
+  },
+  {
+    name: "768*1024",
+    available: true,
+  },
 ] as const;
 
 export const CHAT_PAGE_SIZE = 15;
