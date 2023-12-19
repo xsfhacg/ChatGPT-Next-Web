@@ -439,97 +439,43 @@ export const useChatStore = createPersistStore(
               // 然后判断提示词是否违规
               if (!adminAuth) {
                 const filterWordsArray = [
-                  "nude",
-                  "pornography",
-                  "sexual",
-                  "explicit",
-                  "naked",
-                  "sex",
-                  "adult",
-                  "genitals",
-                  "erotic",
-                  "kinky",
-                  "xxx",
-                  "fetish",
-                  "orgy",
-                  "boobs",
-                  "penis",
-                  "vagina",
-                  "tits",
-                  "cock",
-                  "pussy",
-                  "dick",
-                  "breasts",
-                  "blowjob",
-                  "cum",
-                  "anal",
-                  "threesome",
-                  "bondage",
-                  "dildo",
-                  "vibrator",
-                  "bukkake",
-                  "hentai",
-                  "rimjob",
-                  "squirting",
-                  "gangbang",
-                  "fisting",
-                  "rimming",
-                  "ass",
-                  "butt",
-                  "cunt",
-                  "clitoris",
-                  "labia",
-                  "testicles",
-                  "pubic",
-                  "areola",
-                  "vulva",
-                  "fellatio",
-                  "cunnilingus",
-                  "sodomy",
-                  "erotica",
-                  "sensual",
-                  "seductive",
-                  "masturbation",
-                  "bdsm",
-                  "escort",
-                  "prostitute",
-                  "stripper",
-                  "condom",
-                  "lingerie",
-                  "thong",
-                  "panties",
-                  "bikini",
-                  "swimsuit",
-                  "nipples",
-                  "swinger",
-                  "sperm",
-                  "lick",
-                  "spank",
-                  "orgasm",
-                  "contraceptive",
-                  "film",
-                  "lewd",
-                  "pornographic",
-                  "without clothing",
+                  'nude',      'pornography', 'sexual',         'explicit',
+                  'naked',     'sex',         'adult',          'genitals',
+                  'erotic',    'kinky',       'xxx',            'fetish',
+                  'orgy',      'boobs',       'penis',          'vagina',
+                  'tits',      'cock',        'pussy',          'dick',
+                  'breasts',   'blowjob',     'cum',            'anal',
+                  'threesome', 'bondage',     'dildo',          'vibrator',
+                  'bukkake',   'hentai',      'rimjob',         'squirting',
+                  'gangbang',  'fisting',     'rimming',        'ass',
+                  'butt',      'cunt',        'clitoris',       'labia',
+                  'testicles', 'pubic',       'areola',         'vulva',
+                  'fellatio',  'cunnilingus', 'sodomy',         'erotica',
+                  'sensual',   'seductive',   'masturbation',   'bdsm',
+                  'escort',    'prostitute',  'stripper',       'condom',
+                  'lingerie',  'thong',       'panties',        'bikini',
+                  'swimsuit',  'nipples',     'swinger',        'sperm',
+                  'lick',      'spank',       'orgasm',         'contraceptive',
+                  'film',      'lewd',        'pornographic',   'without clothing'
                 ];
                 // 检查 prompt 是否包含数组中的某个关键词
                 let IllegalWord;
-                const isIllegal = filterWordsArray.some((filterWord) => {
+                const isIllegal = filterWordsArray.some(filterWord => {
                   // 使用正则表达式来确保匹配整个单词
                   // \b 表示单词边界
-                  const regex = new RegExp(`\\b${filterWord}\\b`, "i"); // 'i' 使匹配不区分大小写
+                  const regex = new RegExp(`\\b${filterWord}\\b`, 'i'); // 'i' 使匹配不区分大小写
                   if (regex.test(prompt)) {
-                    // if (prompt.includes(filterWord)) {
+                  // if (prompt.includes(filterWord)) {
                     IllegalWord = filterWord; // 存储违规的词
                     return true; // 如果包含违规词，则返回 true
                   }
                   return false;
                 });
                 if (isIllegal) {
-                  throw new Error("绘图提示词违规！！！" + IllegalWord);
+                  throw new Error('绘图提示词违规！！！' + IllegalWord);
                 }
               }
-
+              
               // 最后调用绘图接口并获取结果
               const result = await generateImage(
                 prompt,

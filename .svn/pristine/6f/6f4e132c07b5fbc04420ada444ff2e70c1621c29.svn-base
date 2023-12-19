@@ -1,6 +1,6 @@
 import md5 from "spark-md5";
 import { DEFAULT_MODELS } from "../constant";
-import { gpt4AuthorizedUsers } from "../api/restapi/authuser";
+import { gpt4AuthorizedUsers } from "../api/restapi/authuser"
 
 declare global {
   namespace NodeJS {

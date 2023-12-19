@@ -27,7 +27,6 @@ import { nanoid } from "nanoid";
 import { createPersistStore } from "../utils/store";
 import { isAdmin } from "../api/restapi/authuser";
 // import { NovitaSDK } from "novita-sdk";
-// import { drawFilterList } from "../api/restapi/drawfilterlist";
 import { baiduTranslate } from "../api/restapi/baidutranslate";
 import { generateImage } from "../api/restapi/stablediffusion";
 
@@ -402,6 +401,8 @@ export const useChatStore = createPersistStore(
           ]);
         });
 
+        const chineseRegExp = /[\u4e00-\u9fa5]/;
+
         // 提问前判断是否为画图
         if (
           content.startsWith("画一") ||
@@ -409,11 +410,8 @@ export const useChatStore = createPersistStore(
           content.toUpperCase().startsWith("/SD")
         ) {
           botMessage.model = "stablediffusion";
-          const adminAuth = isAdmin();
-          const chineseRegExp = /[\u4e00-\u9fa5]/;
-
           const startFn = async () => {
-            let prompt: string;
+            let prompt;
             if (content.startsWith("画一")) {
               prompt = content.substring(1).trim();
             } else {
@@ -428,109 +426,12 @@ export const useChatStore = createPersistStore(
                 let translateResult = await baiduTranslate(prompt);
                 if (translateResult.success) {
                   console.log("绘图提示词翻译成功：", translateResult.message);
-                  prompt = translateResult.message.toLowerCase().trim();
+                  prompt = translateResult.message.toLowerCase();
                 } else {
                   throw new Error(translateResult.message);
                 }
-              } else {
-                prompt = prompt.toLowerCase().trim();
               }
-
-              // 然后判断提示词是否违规
-              if (!adminAuth) {
-                const filterWordsArray = [
-                  "nude",
-                  "pornography",
-                  "sexual",
-                  "explicit",
-                  "naked",
-                  "sex",
-                  "adult",
-                  "genitals",
-                  "erotic",
-                  "kinky",
-                  "xxx",
-                  "fetish",
-                  "orgy",
-                  "boobs",
-                  "penis",
-                  "vagina",
-                  "tits",
-                  "cock",
-                  "pussy",
-                  "dick",
-                  "breasts",
-                  "blowjob",
-                  "cum",
-                  "anal",
-                  "threesome",
-                  "bondage",
-                  "dildo",
-                  "vibrator",
-                  "bukkake",
-                  "hentai",
-                  "rimjob",
-                  "squirting",
-                  "gangbang",
-                  "fisting",
-                  "rimming",
-                  "ass",
-                  "butt",
-                  "cunt",
-                  "clitoris",
-                  "labia",
-                  "testicles",
-                  "pubic",
-                  "areola",
-                  "vulva",
-                  "fellatio",
-                  "cunnilingus",
-                  "sodomy",
-                  "erotica",
-                  "sensual",
-                  "seductive",
-                  "masturbation",
-                  "bdsm",
-                  "escort",
-                  "prostitute",
-                  "stripper",
-                  "condom",
-                  "lingerie",
-                  "thong",
-                  "panties",
-                  "bikini",
-                  "swimsuit",
-                  "nipples",
-                  "swinger",
-                  "sperm",
-                  "lick",
-                  "spank",
-                  "orgasm",
-                  "contraceptive",
-                  "film",
-                  "lewd",
-                  "pornographic",
-                  "without clothing",
-                ];
-                // 检查 prompt 是否包含数组中的某个关键词
-                let IllegalWord;
-                const isIllegal = filterWordsArray.some((filterWord) => {
-                  // 使用正则表达式来确保匹配整个单词
-                  // \b 表示单词边界
-                  const regex = new RegExp(`\\b${filterWord}\\b`, "i"); // 'i' 使匹配不区分大小写
-                  if (regex.test(prompt)) {
-                    // if (prompt.includes(filterWord)) {
-                    IllegalWord = filterWord; // 存储违规的词
-                    return true; // 如果包含违规词，则返回 true
-                  }
-                  return false;
-                });
-                if (isIllegal) {
-                  throw new Error("绘图提示词违规！！！" + IllegalWord);
-                }
-              }
-
-              // 最后调用绘图接口并获取结果
+              // 然后调用绘图接口并获取结果
               const result = await generateImage(
                 prompt,
                 botMessage.drawModel,
@@ -541,7 +442,7 @@ export const useChatStore = createPersistStore(
                 result.success ? result.img_url : result.message,
               );
               botMessage.content = result.success
-                ? `![(seed: ${result.seed}) ${prompt}](${result.img_url})`
+                ? `![(seed: ${result.seed})${prompt}](${result.img_url})`
                 : result.message;
             } catch (error) {
               console.error(error);

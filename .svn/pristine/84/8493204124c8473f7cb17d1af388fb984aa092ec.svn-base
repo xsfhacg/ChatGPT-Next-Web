@@ -100,7 +100,7 @@ export function LoginRegister({ url }: { url: string }): JSX.Element {
         console.log("跳转到用户中心");
         navigate(Path.Profile);
       } else {
-        console.log("登陆失败, login_key: ", loginKey);
+        console.log('登陆失败, login_key: ', loginKey);
       }
     };
 

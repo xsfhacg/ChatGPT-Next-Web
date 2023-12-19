@@ -34,7 +34,7 @@ import AutoIcon from "../icons/auto.svg";
 import BottomIcon from "../icons/bottom.svg";
 import StopIcon from "../icons/pause.svg";
 import RobotIcon from "../icons/robot.svg";
-import { isAdmin, gpt4AuthorizedUsers } from "../api/restapi/authuser";
+import { isAdmin } from "../api/restapi/authuser";
 
 import DrawIcon from "../icons/draw.svg";
 import SizeIcon from "../icons/size.svg";
@@ -599,13 +599,6 @@ export function ChatActions(props: {
         text={currentModel}
         icon={<RobotIcon />}
       /> */}
-      {gpt4AuthorizedUsers() && (
-        <ChatAction
-          onClick={() => setShowModelSelector(true)}
-          text={currentModel}
-          icon={<RobotIcon />}
-        />
-      )}
       {showModelSelector && (
         <Selector
           defaultSelectedValue={currentModel}
